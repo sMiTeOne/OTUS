@@ -21,7 +21,7 @@ config = {"REPORT_SIZE": 1000, "REPORT_DIR": "./reports", "LOG_DIR": "./log"}
 
 LOG_FILE_REGEX = re.compile(r'^(.*([\d]{8}).*\.(log|txt|gz))$')
 REQUEST_URL_REGEX = re.compile(r'^\/.+$')
-RESPONSE_TIME_REGEX = re.compile(r'^\d\.\d{3}$')
+RESPONSE_TIME_REGEX = re.compile(r'^\d+\.\d{3}$')
 
 
 def initialize_dirs(dirs: tuple[str, str]) -> None:
@@ -117,6 +117,7 @@ def get_raw_log_analysis(log_dir: str, log_file: LogFile) -> tuple[dict, Counter
 
 def get_clear_analyzed_data(raw_analyzed_data: dict, item_counter: int, time_counter: float):
     for url, stats in sorted(raw_analyzed_data.items(), key=lambda kv: kv[1]['time_sum'], reverse=True):
+        logger.debug('Collecting statistic for url %s', url)
         yield {
             'url': url,
             'count': stats['count'],
