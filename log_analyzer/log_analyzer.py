@@ -61,7 +61,7 @@ def create_report(analyzed_data: list[dict], report_filepath: str) -> None:
         logger.exception('Template file missing. Error %s', error)
 
 
-def get_last_log_file(log_dir: str) -> LogFile | None:
+def get_analyzed_log(log_dir: str) -> LogFile | None:
     last_log_file = None
     for file_name in os.listdir(log_dir):
         matched_groups = re.findall(r'(.*([\d]{8}).*\.(log|txt|gz))', file_name)
@@ -132,7 +132,7 @@ def main(config: dict) -> None:
         set_logging_config(log_filename)
         initialize_dirs((log_dir, report_dir))
 
-        if log_file := get_last_log_file(log_dir):
+        if log_file := get_analyzed_log(log_dir):
             report_filepath = os.path.join(report_dir, f'report-{log_file.date}.html')
             if not os.path.exists(report_filepath):
                 raw_analyzed_data, item_counter, time_counter = get_raw_log_analysis(log_dir, log_file)
