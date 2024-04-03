@@ -8,6 +8,7 @@
 #                     '$request_time';
 import os
 import re
+import gzip
 import json
 import typing
 import logging
@@ -26,26 +27,26 @@ config = {"REPORT_SIZE": 1000, "REPORT_DIR": "./reports", "LOG_DIR": "./log"}
 
 
 def get_config() -> dict[str, typing.Any]:
-    with open(parsed_args.config, 'r') as f:
+    with open(parsed_args.config) as f:
         json_config = json.load(f)
         config.update(json_config)
     return config
 
 
-def set_logging_config(config: dict[str, typing.Any]) -> None:
+def set_logging_config(filename: str) -> None:
     logging.basicConfig(
-        filename=config.get('LOG_FILE_NAME'),
-        format='[%(asctime)s] %(levelname).1s %(message)s',
-        datefmt='%Y.%m.%d %H:%M:%S',
+        filename=filename,
         level=logging.DEBUG,
+        datefmt='%Y.%m.%d %H:%M:%S',
+        format='[%(asctime)s] %(levelname).1s %(message)s',
     )
 
 
-def get_last_log_file(config: dict[str, typing.Any]) -> LogFile | None:
+def get_last_log_file(log_dir: str) -> LogFile | None:
     last_log_file = None
     try:
-        for file_name in os.listdir(config.get('LOG_DIR')):
-            matched_groups = re.findall(r'(.*([\d]{8}).*\.(\w+))', file_name)
+        for file_name in os.listdir(log_dir):
+            matched_groups = re.findall(r'(.*([\d]{8}).*\.(log|txt|gz))', file_name)
             if matched_groups:
                 current_log_file = LogFile(*matched_groups[0])
                 if last_log_file is None or last_log_file.date < current_log_file.date:
@@ -55,10 +56,37 @@ def get_last_log_file(config: dict[str, typing.Any]) -> LogFile | None:
     return last_log_file
 
 
+def analyse_log(log_dir: str, log_file: LogFile | None):
+    analyzed_data = {}
+    initial_dict = dict.fromkeys(('count', 'time_avg', 'time_max', 'time_sum', 'time_med', 'time_perc', 'count_perc'), 0)
+
+    if log_file is None:
+        logger.info('There is no required file for log analysis')
+    
+    file_open_func = gzip.open if log_file.extension == 'gz' else open
+
+    with file_open_func(os.path.join(log_dir, log_file.name), mode='rt') as file:
+        for line in file:
+            splitted_line = line.split()
+            request_url = splitted_line[6]
+            response_time = float(splitted_line[-1])
+
+            url_stat = analyzed_data.setdefault(request_url, initial_dict.copy())
+            url_stat['count'] += 1
+            url_stat['time_sum'] += response_time
+            url_stat['time_max'] = max(url_stat['time_max'], response_time)
+
+    return analyzed_data
+
 def main():
     config = get_config()
-    set_logging_config(config=config)
-    last_log_file = get_last_log_file(config=config)
+
+    log_dir = config.get('LOG_DIR')
+    log_filename = config.get('LOG_FILENAME')
+
+    set_logging_config(log_filename)
+    log_file = get_last_log_file(log_dir)
+    analyzed_data = analyse_log(log_dir, log_file)
 
 
 if __name__ == "__main__":
