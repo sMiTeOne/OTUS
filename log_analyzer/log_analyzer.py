@@ -148,7 +148,11 @@ def main(config: dict) -> None:
                 raw_analyzed_data, counters = get_raw_log_analysis(log_dir, log_file)
                 if not error_threshold or error_threshold > counters.errors / counters.items:
                     data_generator = get_clear_analyzed_data(raw_analyzed_data, counters.items, counters.time)
-                    analyzed_data = list(data_generator)[:report_size]
+                    analyzed_data = (
+                        list(data_generator)
+                        if report_size >= counters.items
+                        else [next(data_generator) for _ in range(report_size)]
+                    )
                     create_report(analyzed_data, report_filepath)
                 else:
                     logger.info('Failed to parse log file')
