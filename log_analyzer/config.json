@@ -1,4 +1,3 @@
 {
-    "REPORT_SIZE": 100,
-    "LOG_FILENAME": "file.log"
+    "REPORT_SIZE": 10
 }
