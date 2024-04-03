@@ -1,3 +1,4 @@
 {
-    "REPORT_SIZE": 100
+    "REPORT_SIZE": 100,
+    "ERROR_THRESHOLD": 0.1
 }

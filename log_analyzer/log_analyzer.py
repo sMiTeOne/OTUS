@@ -15,8 +15,13 @@ parser.add_argument('--config', help='Config file path', default='config.json')
 logger = logging.getLogger(__name__)
 
 LogFile = namedtuple('LogFile', 'name, date, extension')
+Counters = namedtuple('Counters', 'items, time, errors')
 
 config = {"REPORT_SIZE": 1000, "REPORT_DIR": "./reports", "LOG_DIR": "./log"}
+
+LOG_FILE_REGEX = re.compile(r'^(.*([\d]{8}).*\.(log|txt|gz))$')
+REQUEST_URL_REGEX = re.compile(r'^\/.+$')
+RESPONSE_TIME_REGEX = re.compile(r'^\d\.\d{3}$')
 
 
 def initialize_dirs(dirs: tuple[str, str]) -> None:
@@ -64,17 +69,15 @@ def create_report(analyzed_data: list[dict], report_filepath: str) -> None:
 def get_analyzed_log(log_dir: str) -> LogFile | None:
     last_log_file = None
     for file_name in os.listdir(log_dir):
-        matched_groups = re.findall(r'(.*([\d]{8}).*\.(log|txt|gz))', file_name)
-        if matched_groups:
+        if matched_groups := LOG_FILE_REGEX.findall(file_name):
             current_log_file = LogFile(*matched_groups[0])
             if last_log_file is None or last_log_file.date < current_log_file.date:
                 last_log_file = current_log_file
     return last_log_file
 
 
-def get_raw_log_analysis(log_dir: str, log_file: LogFile) -> tuple[dict, int, float]:
-    item_counter = 0
-    time_counter = 0
+def get_raw_log_analysis(log_dir: str, log_file: LogFile) -> tuple[dict, Counters]:
+    counters = Counters(0, 0, 0)
     analyzed_data = {}
     initial_dict = {
         'count': 0,
@@ -90,9 +93,15 @@ def get_raw_log_analysis(log_dir: str, log_file: LogFile) -> tuple[dict, int, fl
         for line in file:
             splitted_line = line.split()
             request_url = splitted_line[6]
-            response_time = float(splitted_line[-1])
-            item_counter += 1
-            time_counter += response_time
+            response_time = splitted_line[-1]
+
+            if not REQUEST_URL_REGEX.match(request_url) or not RESPONSE_TIME_REGEX.match(response_time):
+                logger.debug('Wrong request url or request time format')
+                counters = Counters(counters.items + 1, counters.time, counters.errors + 1)
+                continue
+
+            response_time = float(response_time)
+            counters = Counters(counters.items + 1, counters.time + response_time, counters.errors)
 
             url_stats = analyzed_data.setdefault(request_url, initial_dict.copy())
             url_stats['count'] += 1
@@ -103,7 +112,7 @@ def get_raw_log_analysis(log_dir: str, log_file: LogFile) -> tuple[dict, int, fl
                 ((url_stats['count'] - 1) * url_stats['time_avg'] + response_time) / url_stats['count'], 3
             )
 
-    return analyzed_data, item_counter, time_counter
+    return analyzed_data, counters
 
 
 def get_clear_analyzed_data(raw_analyzed_data: dict, item_counter: int, time_counter: float):
@@ -128,6 +137,7 @@ def main(config: dict) -> None:
         report_dir = config.get('REPORT_DIR')
         report_size = config.get('REPORT_SIZE')
         log_filename = config.get('LOG_FILENAME')
+        error_threshold = config.get('ERROR_THRESHOLD')
 
         set_logging_config(log_filename)
         initialize_dirs((log_dir, report_dir))
@@ -135,10 +145,13 @@ def main(config: dict) -> None:
         if log_file := get_analyzed_log(log_dir):
             report_filepath = os.path.join(report_dir, f'report-{log_file.date}.html')
             if not os.path.exists(report_filepath):
-                raw_analyzed_data, item_counter, time_counter = get_raw_log_analysis(log_dir, log_file)
-                data_generator = get_clear_analyzed_data(raw_analyzed_data, item_counter, time_counter)
-                analyzed_data = list(data_generator)[:report_size]
-                create_report(analyzed_data, report_filepath)
+                raw_analyzed_data, counters = get_raw_log_analysis(log_dir, log_file)
+                if not error_threshold or error_threshold > counters.errors / counters.items:
+                    data_generator = get_clear_analyzed_data(raw_analyzed_data, counters.items, counters.time)
+                    analyzed_data = list(data_generator)[:report_size]
+                    create_report(analyzed_data, report_filepath)
+                else:
+                    logger.info('Failed to parse log file')
             else:
                 logger.info('Log file has already been analyzed')
         else:
