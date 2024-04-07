@@ -1,0 +1,14 @@
+exclude: '^.*\.(?!py$)[^.]+$$'
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: run black
+        entry: black
+        language: python
+        stages: [push]
+      - id: isort
+        name: run isort
+        entry: isort
+        language: python
+        stages: [push]
