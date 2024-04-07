@@ -8,8 +8,9 @@ jobs:
       matrix:
         python-version: ["3.10"]
     steps:
+      - run: ls -a
       - name: installing test dependencies
-        run: pip install -r ../../requirements.test.txt
+        run: pip install -r ../../../requirements.test.txt
       - name: isort check
         run: python -m isort . --check-only
       - name: black check
