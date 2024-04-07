@@ -20,5 +20,5 @@ jobs:
       - name: black check
         run: python -m black . --check
       - name: unit tests
-        working-directory: ./log_analyzer
-        run: PYTHONPATH=../ python ./tests/test_log_analyzer.py
+        working-directory: ./log_analyzer/tests
+        run: PYTHONPATH=../ python test_log_analyzer.py
