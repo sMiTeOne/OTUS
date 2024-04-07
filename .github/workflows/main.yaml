@@ -18,11 +18,11 @@ jobs:
       - name: installing test dependencies
         run: pip install -r requirements.test.txt
       - name: isort check
-        working-directory: $app_name
+        working-directory: ${{ env.app_name }}
         run: python -m isort . --check-only
       - name: black check
-        working-directory: $app_name
+        working-directory: ${{ env.app_name }}
         run: python -m black . --check
       - name: unit tests
-        working-directory: $app_name/tests/
+        working-directory: ${{ env.app_name }}/tests/
         run: PYTHONPATH=../ python test_${{ env.app_name }}.py
