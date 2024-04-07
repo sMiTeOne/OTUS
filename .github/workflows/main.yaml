@@ -22,4 +22,4 @@ jobs:
       - name: change directory
         run: cd /home/runner/work/OTUS/OTUS/log_analyzer/tests
       - name: unit tests
-        run: PYTHONPATH=../ test_log_analyzer.py
+        run: PYTHONPATH=../ python test_log_analyzer.py
