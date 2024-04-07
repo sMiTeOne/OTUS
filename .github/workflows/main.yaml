@@ -1,0 +1,9 @@
+name: Tests
+run-name: Tests
+on: [push]
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: python -m isort . --sp pyproject.toml --check-only
+      - run: python -m black . --config pyproject.toml .

@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 120
+target-version = ['py310']
+exclude = '.*/(venv|tmp)/.*'
+skip-string-normalization = true
+
+[tool.isort]
+line_length = 120
+force_grid_wrap = 2
+multi_line_output = 3
+length_sort = true
+balanced_wrapping = true
+include_trailing_comma = true
+profile = 'black'
