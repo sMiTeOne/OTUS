@@ -19,5 +19,7 @@ jobs:
         run: python -m isort . --check-only
       - name: black check
         run: python -m black . --check
+      - name: change directory
+        run: cd .\log_analyzer
       - name: unit tests
-        run: PYTHONPATH=../ python ./log_analyzer/tests/test_log_analyzer.py
+        run: PYTHONPATH=../ ./tests/test_log_analyzer.py
