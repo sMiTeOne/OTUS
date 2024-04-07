@@ -20,6 +20,6 @@ jobs:
       - name: black check
         run: python -m black . --check
       - name: change directory
-        run: cd .\log_analyzer
+        run: cd ./OTUS/log_analyzer
       - name: unit tests
         run: PYTHONPATH=../ ./tests/test_log_analyzer.py
