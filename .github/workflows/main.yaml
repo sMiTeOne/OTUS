@@ -2,8 +2,10 @@ name: Tests
 run-name: Tests
 on: [push]
 jobs:
-  Tests:
+  Log-Analyzer-Tests:
     runs-on: ubuntu-latest
+    env:
+      app_name: log_analyzer
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -16,9 +18,11 @@ jobs:
       - name: installing test dependencies
         run: pip install -r requirements.test.txt
       - name: isort check
+        working-directory: ./$app_name/
         run: python -m isort . --check-only
       - name: black check
+        working-directory: ./$app_name/
         run: python -m black . --check
       - name: unit tests
-        working-directory: ./log_analyzer/tests/
-        run: PYTHONPATH=../ python test_log_analyzer.py
+        working-directory: ./$app_name/tests/
+        run: PYTHONPATH=../ python test_$app_name.py
