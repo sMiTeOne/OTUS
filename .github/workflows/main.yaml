@@ -20,4 +20,5 @@ jobs:
       - name: black check
         run: python -m black . --check
       - name: unit tests
-        run: PYTHONPATH=/home/runner/work/OTUS/OTUS/log_analyzer python /home/runner/work/OTUS/OTUS/log_analyzer/tests/test_log_analyzer.py
+        working-directory: ./log_analyzer
+        run: PYTHONPATH=../ python ./tests/test_log_analyzer.py
