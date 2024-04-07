@@ -8,7 +8,6 @@ from log_analyzer import (
 
 
 class LogAnalyzerTest(unittest.TestCase):
-
     DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
     def test_empty_log_dir(self):
