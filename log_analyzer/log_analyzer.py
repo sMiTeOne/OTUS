@@ -29,7 +29,7 @@ def initialize_dirs(dirs: tuple[str, str]) -> None:
         for dir in dirs:
             if not os.path.exists(dir):
                 os.makedirs(dir)
-    except Exception as error:
+    except OSError as error:
         logger.exception('Failed to create directory %s. Error: %s', dir, error)
 
 
@@ -76,6 +76,16 @@ def get_analyzed_log(log_dir: str) -> LogFile | None:
     return last_log_file
 
 
+def read_log_file(log_dir: str, log_file: LogFile):
+    file_open_func = gzip.open if log_file.extension == 'gz' else open
+    with file_open_func(os.path.join(log_dir, log_file.name), mode='rt') as file:
+        for line in file:
+            splitted_line = line.split()
+            request_url = splitted_line[6]
+            response_time = splitted_line[-1]
+            yield request_url, response_time
+
+
 def get_raw_log_analysis(log_dir: str, log_file: LogFile) -> tuple[dict, Counters]:
     counters = Counters(0, 0, 0)
     analyzed_data = {}
@@ -87,30 +97,23 @@ def get_raw_log_analysis(log_dir: str, log_file: LogFile) -> tuple[dict, Counter
         'values': [],
     }
 
-    file_open_func = gzip.open if log_file.extension == 'gz' else open
+    for request_url, response_time in read_log_file(log_dir, log_file):
+        if not REQUEST_URL_REGEX.match(request_url) or not RESPONSE_TIME_REGEX.match(response_time):
+            logger.debug('Wrong request url or request time format')
+            counters = Counters(counters.items + 1, counters.time, counters.errors + 1)
+            continue
 
-    with file_open_func(os.path.join(log_dir, log_file.name), mode='rt') as file:
-        for line in file:
-            splitted_line = line.split()
-            request_url = splitted_line[6]
-            response_time = splitted_line[-1]
+        response_time = float(response_time)
+        counters = Counters(counters.items + 1, counters.time + response_time, counters.errors)
 
-            if not REQUEST_URL_REGEX.match(request_url) or not RESPONSE_TIME_REGEX.match(response_time):
-                logger.debug('Wrong request url or request time format')
-                counters = Counters(counters.items + 1, counters.time, counters.errors + 1)
-                continue
-
-            response_time = float(response_time)
-            counters = Counters(counters.items + 1, counters.time + response_time, counters.errors)
-
-            url_stats = analyzed_data.setdefault(request_url, initial_dict.copy())
-            url_stats['count'] += 1
-            url_stats['values'].append(response_time)
-            url_stats['time_max'] = max(url_stats['time_max'], response_time)
-            url_stats['time_sum'] = round(url_stats['time_sum'] + response_time, 3)
-            url_stats['time_avg'] = round(
-                ((url_stats['count'] - 1) * url_stats['time_avg'] + response_time) / url_stats['count'], 3
-            )
+        url_stats = analyzed_data.setdefault(request_url, initial_dict.copy())
+        url_stats['count'] += 1
+        url_stats['values'].append(response_time)
+        url_stats['time_max'] = max(url_stats['time_max'], response_time)
+        url_stats['time_sum'] = round(url_stats['time_sum'] + response_time, 3)
+        url_stats['time_avg'] = round(
+            ((url_stats['count'] - 1) * url_stats['time_avg'] + response_time) / url_stats['count'], 3
+        )
 
     return analyzed_data, counters
 
@@ -143,23 +146,26 @@ def main(config: dict) -> None:
         set_logging_config(log_filename)
         initialize_dirs((log_dir, report_dir))
 
-        if log_file := get_analyzed_log(log_dir):
-            report_filepath = os.path.join(report_dir, f'report-{log_file.date}.html')
-            if not os.path.exists(report_filepath):
-                raw_analyzed_data, counters = get_raw_log_analysis(log_dir, log_file)
-                if not error_threshold or error_threshold > counters.errors / counters.items:
-                    data_generator = get_clear_analyzed_data(raw_analyzed_data, counters.items, counters.time)
-                    real_report_size = min(report_size, counters.items)
-                    analyzed_data = [next(data_generator) for _ in range(real_report_size)]
-                    create_report(analyzed_data, report_filepath)
-                else:
-                    logger.info('Failed to parse log file')
-            else:
-                logger.info('Log file has already been analyzed')
-        else:
-            logger.info('No log files for analysis')
+        if not (log_file := get_analyzed_log(log_dir)):
+            raise FileNotFoundError('No log files for analysis')
+
+        report_filepath = os.path.join(report_dir, f'report-{log_file.date}.html')
+
+        if os.path.exists(report_filepath):
+            raise FileExistsError('Log file has already been analyzed')
+
+        raw_analyzed_data, counters = get_raw_log_analysis(log_dir, log_file)
+
+        if error_threshold and error_threshold < counters.errors / counters.items:
+            raise RuntimeError('Failed to parse log file')
+
+        data_generator = get_clear_analyzed_data(raw_analyzed_data, counters.items, counters.time)
+        real_report_size = min(report_size, counters.items)
+        analyzed_data = [next(data_generator) for _ in range(real_report_size)]
+        create_report(analyzed_data, report_filepath)
+
     except Exception as error:
-        logger.exception('Unexpected error: %s', error)
+        logger.exception(error)
 
 
 if __name__ == "__main__":
