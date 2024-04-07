@@ -19,7 +19,5 @@ jobs:
         run: python -m isort . --check-only
       - name: black check
         run: python -m black . --check
-      - name: change directory
-        run: cd /home/runner/work/OTUS/OTUS/log_analyzer/tests
       - name: unit tests
-        run: PYTHONPATH=../ python test_log_analyzer.py
+        run: PYTHONPATH=/home/runner/work/OTUS/OTUS/log_analyzer/tests python /home/runner/work/OTUS/OTUS/log_analyzer/tests/test_log_analyzer.py
