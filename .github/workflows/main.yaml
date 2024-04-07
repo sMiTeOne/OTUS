@@ -20,4 +20,4 @@ jobs:
       - name: black check
         run: python -m black . --check
       - name: unit tests
-        run: PYTHONPATH=../ python test_log_analyzer.py
+        run: PYTHONPATH=../ python ./log_analyzer/tests/test_log_analyzer.py
