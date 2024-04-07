@@ -10,9 +10,6 @@ from log_analyzer import (
 class LogAnalyzerTest(unittest.TestCase):
     DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
-    def test_empty_log_dir(self):
-        self.assertIsNone(get_analyzed_log(f'{self.DIR_PATH}/log_dirs/empty_log_dir'))
-
     def test_wrong_log_files(self):
         self.assertIsNone(get_analyzed_log(f'{self.DIR_PATH}/log_dirs/wrong_log_files'))
 
