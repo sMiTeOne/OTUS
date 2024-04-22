@@ -21,7 +21,6 @@ from models import (
     ClientsInterestsRequest,
 )
 
-
 SALT = "Otus"
 ADMIN_LOGIN = "admin"
 ADMIN_SALT = "42"

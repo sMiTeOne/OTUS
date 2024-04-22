@@ -1,5 +1,10 @@
+from abc import (
+    ABC,
+    abstractmethod,
+)
 from copy import deepcopy
 
+from enums import HTTPStatus
 from fields import (
     BaseField,
     CharField,
@@ -11,16 +16,11 @@ from fields import (
     ArgumentsField,
     ClientIDsField,
 )
+
 from scoring import (
     get_score,
     get_interests,
 )
-from abc import (
-    ABC,
-    abstractmethod,
-)
-from enums import HTTPStatus
-
 
 ADMIN_LOGIN = 'admin'
 
@@ -64,7 +64,6 @@ class ClientsInterestsRequest(Serializer):
 
 
 class OnlineScoreRequest(Serializer):
-
     ONLINE_SCORE_PAIRS = (
         {'phone', 'email'},
         {'gender', 'birthday'},
@@ -89,6 +88,7 @@ class OnlineScoreRequest(Serializer):
         else:
             score = get_score(context, **arguments)
         return {'score': score}, HTTPStatus.OK
+
 
 class MethodRequest(Serializer):
     account = CharField(required=False, nullable=True)
