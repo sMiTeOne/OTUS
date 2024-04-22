@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json
-from datetime import datetime as dt
-import logging
-import hashlib
 import uuid
+import hashlib
+import logging
+from datetime import datetime as dt
 from optparse import OptionParser
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from models import *
+from http.server import (
+    HTTPServer,
+    BaseHTTPRequestHandler,
+)
 
+from models import *
 
 SALT = "Otus"
 ADMIN_LOGIN = "admin"
@@ -41,7 +44,7 @@ def check_auth(request: dict) -> bool:
         raw_string = dt.now().strftime("%Y%m%d%H") + ADMIN_SALT
     else:
         raw_string = request['account'] + request['login'] + SALT
-        
+
     return hashlib.sha512(raw_string.encode('utf-8')).hexdigest() == request['token']
 
 
@@ -53,10 +56,10 @@ def method_handler(request: dict, context, store):
     request_method.validate_request()
     if request_method.errors:
         return request_method.errors, INVALID_REQUEST
-    
+
     if not check_auth(request_payload):
         return None, FORBIDDEN
-    
+
     request_method.validate_arguments()
     if request_method.errors:
         return request_method.errors, INVALID_REQUEST
@@ -64,9 +67,7 @@ def method_handler(request: dict, context, store):
 
 
 class MainHTTPHandler(BaseHTTPRequestHandler):
-    router = {
-        "method": method_handler
-    }
+    router = {"method": method_handler}
     store = None
 
     def get_request_id(self, headers):
@@ -111,8 +112,12 @@ if __name__ == "__main__":
     op.add_option("-p", "--port", action="store", type=int, default=8080)
     op.add_option("-l", "--log", action="store", default=None)
     (opts, args) = op.parse_args()
-    logging.basicConfig(filename=opts.log, level=logging.INFO,
-                        format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
+    logging.basicConfig(
+        filename=opts.log,
+        level=logging.INFO,
+        format='[%(asctime)s] %(levelname).1s %(message)s',
+        datefmt='%Y.%m.%d %H:%M:%S',
+    )
     server = HTTPServer(("localhost", opts.port), MainHTTPHandler)
     logging.info("Starting server at %s" % opts.port)
     try:

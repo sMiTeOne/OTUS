@@ -6,7 +6,6 @@ from datetime import datetime as dt
 
 
 class BaseField(ABC):
-
     def __init__(self, required: bool, nullable: bool) -> None:
         self.required = required
         self.nullable = nullable
@@ -15,11 +14,11 @@ class BaseField(ABC):
         if self.required and name not in data:
             return f'Field {name} is required'
         if not self.nullable and data[name] is None:
-            return  f'Field {name} is empty'
+            return f'Field {name} is empty'
         if not self.is_correct_type(data[name]):
             return f'Field {name} has wrong type'
-    
-    @abstractmethod        
+
+    @abstractmethod
     def is_correct_type(self, value) -> bool:
         raise NotImplementedError
 
@@ -30,7 +29,7 @@ class BaseField(ABC):
 class IntField(BaseField):
     def is_correct_type(self, value) -> bool:
         return isinstance(value, int | None if self.nullable else int)
-    
+
 
 class CharOrIntField(BaseField):
     def is_correct_type(self, value) -> bool:
@@ -77,7 +76,6 @@ class PhoneField(CharOrIntField):
             return f'Field {name} must be length 11'
         if not phone_string.startswith('7'):
             return f'Field {name} must start with 7'
-
 
 
 class BirthDayField(DateField):
