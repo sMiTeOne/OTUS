@@ -13,6 +13,7 @@ from http.server import (
 
 from enums import Methods
 from models import *
+
 from scoring import (
     get_score,
     get_interests,
@@ -73,7 +74,6 @@ def method_handler(request: dict, context: dict, store):
     request_method.validate_request()
     if request_method.errors:
         return request_method.errors, INVALID_REQUEST
-    
 
     match method:
         case Methods.OnlineScore:
