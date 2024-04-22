@@ -16,7 +16,6 @@ from fields import (
     ArgumentsField,
     ClientIDsField,
 )
-
 from scoring import (
     get_score,
     get_interests,
