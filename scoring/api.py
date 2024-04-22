@@ -11,7 +11,12 @@ from http.server import (
     BaseHTTPRequestHandler,
 )
 
+from enums import Methods
 from models import *
+from scoring import (
+    get_score,
+    get_interests,
+)
 
 SALT = "Otus"
 ADMIN_LOGIN = "admin"
@@ -29,14 +34,11 @@ ERRORS = {
     INVALID_REQUEST: "Invalid Request",
     INTERNAL_ERROR: "Internal Server Error",
 }
-UNKNOWN = 0
-MALE = 1
-FEMALE = 2
-GENDERS = {
-    UNKNOWN: "unknown",
-    MALE: "male",
-    FEMALE: "female",
-}
+ONLINE_SCORE_PAIRS = (
+    {'phone', 'email'},
+    {'gender', 'birthday'},
+    {'first_name', 'last_name'},
+)
 
 
 def check_auth(request: dict) -> bool:
@@ -48,7 +50,7 @@ def check_auth(request: dict) -> bool:
     return hashlib.sha512(raw_string.encode('utf-8')).hexdigest() == request['token']
 
 
-def method_handler(request: dict, context, store):
+def method_handler(request: dict, context: dict, store):
     response, code = None, OK
     request_payload = request['body']
     request_method = MethodRequest(request_payload)
@@ -60,9 +62,30 @@ def method_handler(request: dict, context, store):
     if not check_auth(request_payload):
         return None, FORBIDDEN
 
-    request_method.validate_arguments()
+    login = request_payload['login']
+    method = request_payload['method']
+    arguments = request_payload['arguments']
+
+    if not (request_method_class := METHODS_MAPPING.get(method)):
+        return f'Method {method} is not supported', INVALID_REQUEST
+
+    request_method: Serializer = request_method_class(arguments)
+    request_method.validate_request()
     if request_method.errors:
         return request_method.errors, INVALID_REQUEST
+    
+
+    match method:
+        case Methods.OnlineScore:
+            has = set(arguments.keys())
+            context["has"] = list(has)
+            if not any((pair <= has for pair in ONLINE_SCORE_PAIRS)):
+                return 'Missing pairs of fields', INVALID_REQUEST
+            score = 42 if login == ADMIN_LOGIN else get_score(store, **request_payload['arguments'])
+            response = {'score': score}
+        case Methods.ClientsInterests:
+            context["nclients"] = len(arguments['client_ids'])
+            response = {client_id: get_interests(store, context) for client_id in arguments['client_ids']}
     return response, code
 
 

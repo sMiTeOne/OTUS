@@ -12,8 +12,6 @@ from fields import (
     ClientIDsField,
 )
 
-ADMIN_LOGIN = "admin"
-
 
 class Serializer:
     def __init__(self, data: dict) -> None:
@@ -30,11 +28,12 @@ class Serializer:
     def validate_request(self):
         for field_name in self.fields:
             field_obj: BaseField = getattr(self, field_name)
-            field_value = self.data.get(field_name)
             if error := field_obj.check(field_name, self.data):
                 self.errors.append(error)
-            if error := field_obj.validate(field_name, field_value):
-                self.errors.append(error)
+                continue
+            if field_value := self.data.get(field_name):
+                if error := field_obj.validate(field_name, field_value):
+                    self.errors.append(error)
 
 
 class ClientsInterestsRequest(Serializer):

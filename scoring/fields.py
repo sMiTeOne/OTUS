@@ -3,6 +3,7 @@ from abc import (
     abstractmethod,
 )
 from datetime import datetime as dt
+from enums import Genders
 
 
 class BaseField(ABC):
@@ -13,9 +14,10 @@ class BaseField(ABC):
     def check(self, name, data) -> str | None:
         if self.required and name not in data:
             return f'Field {name} is required'
-        if not self.nullable and data[name] is None:
+        field_value = data.get(name)
+        if not self.nullable and not field_value:
             return f'Field {name} is empty'
-        if not self.is_correct_type(data[name]):
+        if field_value and not self.is_correct_type(field_value):
             return f'Field {name} has wrong type'
 
     @abstractmethod
@@ -87,7 +89,9 @@ class BirthDayField(DateField):
 
 class GenderField(IntField):
     def validate(self, name, value) -> str | None:
-        if value not in range(2):
+        try:
+            Genders(value)
+        except ValueError:
             return f'Field {name} must be in range 0 to 2'
 
 

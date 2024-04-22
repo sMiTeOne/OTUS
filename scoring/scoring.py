@@ -1,7 +1,7 @@
 import random
 
 
-def get_score(store, phone, email, birthday=None, gender=None, first_name=None, last_name=None):
+def get_score(store, phone=None, email=None, birthday=None, gender=None, first_name=None, last_name=None):
     score = 0
     if phone:
         score += 1.5
