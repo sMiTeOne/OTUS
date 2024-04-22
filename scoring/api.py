@@ -11,35 +11,20 @@ from http.server import (
     BaseHTTPRequestHandler,
 )
 
-from enums import Methods
-from models import *
-
-from scoring import (
-    get_score,
-    get_interests,
+from enums import (
+    Methods,
+    HTTPStatus,
 )
+from models import (
+    MethodRequest,
+    OnlineScoreRequest,
+    ClientsInterestsRequest,
+)
+
 
 SALT = "Otus"
 ADMIN_LOGIN = "admin"
 ADMIN_SALT = "42"
-OK = 200
-BAD_REQUEST = 400
-FORBIDDEN = 403
-NOT_FOUND = 404
-INVALID_REQUEST = 422
-INTERNAL_ERROR = 500
-ERRORS = {
-    BAD_REQUEST: "Bad Request",
-    FORBIDDEN: "Forbidden",
-    NOT_FOUND: "Not Found",
-    INVALID_REQUEST: "Invalid Request",
-    INTERNAL_ERROR: "Internal Server Error",
-}
-ONLINE_SCORE_PAIRS = (
-    {'phone', 'email'},
-    {'gender', 'birthday'},
-    {'first_name', 'last_name'},
-)
 
 
 def check_auth(request: dict) -> bool:
@@ -47,46 +32,33 @@ def check_auth(request: dict) -> bool:
         raw_string = dt.now().strftime("%Y%m%d%H") + ADMIN_SALT
     else:
         raw_string = request['account'] + request['login'] + SALT
-
     return hashlib.sha512(raw_string.encode('utf-8')).hexdigest() == request['token']
 
 
 def method_handler(request: dict, context: dict, store):
-    response, code = None, OK
+    response, code = None, HTTPStatus.OK
     request_payload = request['body']
     request_method = MethodRequest(request_payload)
-
     request_method.validate_request()
     if request_method.errors:
-        return request_method.errors, INVALID_REQUEST
-
+        return request_method.errors, HTTPStatus.INVALID_REQUEST
     if not check_auth(request_payload):
-        return None, FORBIDDEN
+        return 'Unauthorized', HTTPStatus.FORBIDDEN
 
-    login = request_payload['login']
-    method = request_payload['method']
     arguments = request_payload['arguments']
-
-    if not (request_method_class := METHODS_MAPPING.get(method)):
-        return f'Method {method} is not supported', INVALID_REQUEST
-
-    request_method: Serializer = request_method_class(arguments)
-    request_method.validate_request()
-    if request_method.errors:
-        return request_method.errors, INVALID_REQUEST
-
-    match method:
+    match request_payload['method']:
         case Methods.OnlineScore:
-            has = set(arguments.keys())
-            context["has"] = list(has)
-            if not any((pair <= has for pair in ONLINE_SCORE_PAIRS)):
-                return 'Missing pairs of fields', INVALID_REQUEST
-            score = 42 if login == ADMIN_LOGIN else get_score(store, **request_payload['arguments'])
-            response = {'score': score}
+            request_method = OnlineScoreRequest(arguments)
+            context.update(
+                has=arguments.keys(),
+                login=request_payload['login'],
+            )
+            return request_method.execute(arguments, context)
         case Methods.ClientsInterests:
-            context["nclients"] = len(arguments['client_ids'])
-            response = {client_id: get_interests(store, context) for client_id in arguments['client_ids']}
-    return response, code
+            request_method = ClientsInterestsRequest(arguments)
+            return request_method.execute(arguments, context)
+        case _:
+            return response, code
 
 
 class MainHTTPHandler(BaseHTTPRequestHandler):
@@ -97,14 +69,14 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
         return headers.get('HTTP_X_REQUEST_ID', uuid.uuid4().hex)
 
     def do_POST(self):
-        response, code = {}, OK
+        response, code = {}, HTTPStatus.OK
         context = {"request_id": self.get_request_id(self.headers)}
         request = None
         try:
             data_string = self.rfile.read(int(self.headers['Content-Length']))
             request = json.loads(data_string)
         except Exception:
-            code = BAD_REQUEST
+            code = HTTPStatus.BAD_REQUEST
 
         if request:
             path = self.path.strip("/")
@@ -114,17 +86,17 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
                     response, code = self.router[path]({"body": request, "headers": self.headers}, context, self.store)
                 except Exception as e:
                     logging.exception("Unexpected error: %s" % e)
-                    code = INTERNAL_ERROR
+                    code = HTTPStatus.INTERNAL_ERROR
             else:
-                code = NOT_FOUND
+                code = HTTPStatus.NOT_FOUND
 
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
-        if code not in ERRORS:
+        if code not in HTTPStatus:
             r = {"response": response, "code": code}
         else:
-            r = {"error": response or ERRORS.get(code, "Unknown Error"), "code": code}
+            r = {"error": response or HTTPStatus(code).label, "code": code}
         context.update(r)
         logging.info(context)
         self.wfile.write(str.encode(json.dumps(r)))

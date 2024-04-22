@@ -14,6 +14,6 @@ def get_score(store, phone=None, email=None, birthday=None, gender=None, first_n
     return score
 
 
-def get_interests(store, cid):
+def get_interests():
     interests = ["cars", "pets", "travel", "hi-tech", "sport", "music", "books", "tv", "cinema", "geek", "otus"]
     return random.sample(interests, 2)

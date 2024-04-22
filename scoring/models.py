@@ -11,12 +11,23 @@ from fields import (
     ArgumentsField,
     ClientIDsField,
 )
+from scoring import (
+    get_score,
+    get_interests,
+)
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from enums import HTTPStatus
 
 
-class Serializer:
+ADMIN_LOGIN = 'admin'
+
+
+class Serializer(ABC):
     def __init__(self, data: dict) -> None:
         self.data = deepcopy(data)
-        self.valid_data = {}
         self.errors = []
         self.fields = []
 
@@ -35,13 +46,31 @@ class Serializer:
                 if error := field_obj.validate(field_name, field_value):
                     self.errors.append(error)
 
+    @abstractmethod
+    def execute(self, arguments: dict, context: dict | None = None) -> tuple[dict | HTTPStatus]:
+        raise NotImplementedError
+
 
 class ClientsInterestsRequest(Serializer):
     client_ids = ClientIDsField(required=True, nullable=False)
     date = DateField(required=False, nullable=True)
 
+    def execute(self, arguments: dict, context: dict | None = None) -> tuple[dict | HTTPStatus]:
+        self.validate_request()
+        if self.errors:
+            return self.errors, HTTPStatus.INVALID_REQUEST
+        context["nclients"] = len(arguments['client_ids'])
+        return {client_id: get_interests() for client_id in arguments['client_ids']}, HTTPStatus.OK
+
 
 class OnlineScoreRequest(Serializer):
+
+    ONLINE_SCORE_PAIRS = (
+        {'phone', 'email'},
+        {'gender', 'birthday'},
+        {'first_name', 'last_name'},
+    )
+
     first_name = CharField(required=False, nullable=True)
     last_name = CharField(required=False, nullable=True)
     email = EmailField(required=False, nullable=True)
@@ -49,6 +78,17 @@ class OnlineScoreRequest(Serializer):
     birthday = BirthDayField(required=False, nullable=True)
     gender = GenderField(required=False, nullable=True)
 
+    def execute(self, arguments: dict, context: dict | None = None) -> tuple[dict | HTTPStatus]:
+        self.validate_request()
+        if self.errors:
+            return self.errors, HTTPStatus.INVALID_REQUEST
+        if not any((pair <= set(context["has"]) for pair in self.ONLINE_SCORE_PAIRS)):
+            return 'Missing pairs of fields', HTTPStatus.INVALID_REQUEST
+        if context["login"] == ADMIN_LOGIN:
+            score = 42
+        else:
+            score = get_score(context, **arguments)
+        return {'score': score}, HTTPStatus.OK
 
 class MethodRequest(Serializer):
     account = CharField(required=False, nullable=True)
@@ -57,19 +97,5 @@ class MethodRequest(Serializer):
     arguments = ArgumentsField(required=True, nullable=True)
     method = CharField(required=True, nullable=False)
 
-    def validate_arguments(self) -> None:
-        method = self.data['method']
-        arguments = self.data['arguments']
-
-        if not (request_method_class := METHODS_MAPPING.get(method)):
-            return self.errors.append(f'Method {method} is not supported')
-
-        request_method: Serializer = request_method_class(arguments)
-        request_method.validate_request()
-        self.errors.extend(request_method.errors)
-
-
-METHODS_MAPPING: dict[str, Serializer] = {
-    'clients_interests': ClientsInterestsRequest,
-    'online_score': OnlineScoreRequest,
-}
+    def execute(self):
+        pass

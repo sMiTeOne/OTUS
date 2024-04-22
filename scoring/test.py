@@ -4,6 +4,7 @@ import unittest
 import functools
 
 import api
+from enums import HTTPStatus
 
 
 def cases(cases):
@@ -37,7 +38,7 @@ class TestSuite(unittest.TestCase):
 
     def test_empty_request(self):
         _, code = self.get_response({})
-        self.assertEqual(api.INVALID_REQUEST, code)
+        self.assertEqual(HTTPStatus.INVALID_REQUEST, code)
 
     @cases(
         [
@@ -48,7 +49,7 @@ class TestSuite(unittest.TestCase):
     )
     def test_bad_auth(self, request):
         _, code = self.get_response(request)
-        self.assertEqual(api.FORBIDDEN, code)
+        self.assertEqual(HTTPStatus.FORBIDDEN, code)
 
     @cases(
         [
@@ -60,7 +61,7 @@ class TestSuite(unittest.TestCase):
     def test_invalid_method_request(self, request):
         self.set_valid_auth(request)
         response, code = self.get_response(request)
-        self.assertEqual(api.INVALID_REQUEST, code)
+        self.assertEqual(HTTPStatus.INVALID_REQUEST, code)
         self.assertTrue(len(response))
 
     @cases(
@@ -96,7 +97,7 @@ class TestSuite(unittest.TestCase):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "online_score", "arguments": arguments}
         self.set_valid_auth(request)
         response, code = self.get_response(request)
-        self.assertEqual(api.INVALID_REQUEST, code, arguments)
+        self.assertEqual(HTTPStatus.INVALID_REQUEST, code, arguments)
         self.assertTrue(len(response))
 
     @cases(
@@ -121,7 +122,7 @@ class TestSuite(unittest.TestCase):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "online_score", "arguments": arguments}
         self.set_valid_auth(request)
         response, code = self.get_response(request)
-        self.assertEqual(api.OK, code, arguments)
+        self.assertEqual(HTTPStatus.OK, code, arguments)
         score = response.get("score")
         self.assertTrue(isinstance(score, (int, float)) and score >= 0, arguments)
         self.assertEqual(sorted(self.context["has"]), sorted(arguments.keys()))
@@ -131,7 +132,7 @@ class TestSuite(unittest.TestCase):
         request = {"account": "horns&hoofs", "login": "admin", "method": "online_score", "arguments": arguments}
         self.set_valid_auth(request)
         response, code = self.get_response(request)
-        self.assertEqual(api.OK, code)
+        self.assertEqual(HTTPStatus.OK, code)
         score = response.get("score")
         self.assertEqual(score, 42)
 
@@ -149,7 +150,7 @@ class TestSuite(unittest.TestCase):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "clients_interests", "arguments": arguments}
         self.set_valid_auth(request)
         response, code = self.get_response(request)
-        self.assertEqual(api.INVALID_REQUEST, code, arguments)
+        self.assertEqual(HTTPStatus.INVALID_REQUEST, code, arguments)
         self.assertTrue(len(response))
 
     @cases(
@@ -163,7 +164,7 @@ class TestSuite(unittest.TestCase):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "clients_interests", "arguments": arguments}
         self.set_valid_auth(request)
         response, code = self.get_response(request)
-        self.assertEqual(api.OK, code, arguments)
+        self.assertEqual(HTTPStatus.OK, code, arguments)
         self.assertEqual(len(arguments["client_ids"]), len(response))
         self.assertTrue(
             all(v and isinstance(v, list) and all(isinstance(i, (bytes, str)) for i in v) for v in response.values())
