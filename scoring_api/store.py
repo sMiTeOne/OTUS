@@ -4,7 +4,13 @@ from tarantool.response import Response as TarantoolResponse
 
 class Store:
     def __init__(self, space: str, host: str = 'localhost', port: int = 3301):
-        self.connection = tarantool.connect(host=host, port=port).space(space)
+        self.space = space
+        self.host = host
+        self.port = port
+        self.connection = None
+
+    def initialize(self):
+        self.connection = tarantool.connect(host=self.host, port=self.port).space(self.space)
 
     def get(self, primary_key: str) -> TarantoolResponse | None:
         return self.connection.select(primary_key)

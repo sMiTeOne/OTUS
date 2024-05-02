@@ -62,6 +62,7 @@ class ClientsInterestsRequest(Serializer):
         if self.errors:
             return self.errors, HTTPStatus.INVALID_REQUEST
         context["nclients"] = len(arguments['client_ids'])
+        self.CACHE.initialize()
         return {client_id: get_interests(self.CACHE, client_id) for client_id in arguments['client_ids']}, HTTPStatus.OK
 
 
@@ -89,6 +90,7 @@ class OnlineScoreRequest(Serializer):
         if context["login"] == ADMIN_LOGIN:
             score = 42
         else:
+            self.CACHE.initialize()
             score = get_score(self.CACHE, **arguments)
         return {'score': score}, HTTPStatus.OK
 

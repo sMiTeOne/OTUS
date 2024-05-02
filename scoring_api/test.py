@@ -125,7 +125,7 @@ class TestSuite(unittest.TestCase):
     def test_ok_score_request(self, arguments):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "online_score", "arguments": arguments}
         self.set_valid_auth(request)
-        with unittest.mock.patch('store.Store.__init__'):
+        with unittest.mock.patch('store.Store.initialize'):
             response, code = self.get_response(request)
         self.assertEqual(HTTPStatus.OK, code, arguments)
         score = response.get("score")
