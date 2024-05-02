@@ -5,6 +5,7 @@ import functools
 
 import api
 from enums import HTTPStatus
+from unittest.mock import patch
 
 
 def cases(cases):
@@ -121,11 +122,12 @@ class TestSuite(unittest.TestCase):
     def test_ok_score_request(self, arguments):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "online_score", "arguments": arguments}
         self.set_valid_auth(request)
-        response, code = self.get_response(request)
-        self.assertEqual(HTTPStatus.OK, code, arguments)
-        score = response.get("score")
-        self.assertTrue(isinstance(score, (int, float)) and score >= 0, arguments)
-        self.assertEqual(sorted(self.context["has"]), sorted(arguments.keys()))
+        with patch('store.Cache.initialize'):
+            response, code = self.get_response(request)
+            self.assertEqual(HTTPStatus.OK, code, arguments)
+            score = response.get("score")
+            self.assertTrue(isinstance(score, (int, float)) and score >= 0, arguments)
+            self.assertEqual(sorted(self.context["has"]), sorted(arguments.keys()))
 
     def test_ok_score_admin_request(self):
         arguments = {"phone": "79175002040", "email": "stupnikov@otus.ru"}

@@ -24,6 +24,7 @@ class HTTPStatus(int, Enum):
     @property
     def label(self):
         return {
+            0: "Unknown Error",
             400: "Bad Request",
             403: "Forbidden",
             404: "Not Found",

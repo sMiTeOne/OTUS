@@ -92,7 +92,7 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
-        if code not in HTTPStatus:
+        if code == HTTPStatus.OK:
             r = {"response": response, "code": code}
         else:
             r = {"error": response or HTTPStatus(code).label, "code": code}

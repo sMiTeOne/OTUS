@@ -20,6 +20,7 @@ from scoring import (
     get_score,
     get_interests,
 )
+from store import Cache
 
 ADMIN_LOGIN = 'admin'
 
@@ -68,6 +69,7 @@ class OnlineScoreRequest(Serializer):
         {'gender', 'birthday'},
         {'first_name', 'last_name'},
     )
+    CACHE = Cache('users')
 
     first_name = CharField(required=False, nullable=True)
     last_name = CharField(required=False, nullable=True)
@@ -85,7 +87,8 @@ class OnlineScoreRequest(Serializer):
         if context["login"] == ADMIN_LOGIN:
             score = 42
         else:
-            score = get_score(context, **arguments)
+            self.CACHE.initialize()
+            score = get_score(self.CACHE, **arguments)
         return {'score': score}, HTTPStatus.OK
 
 
