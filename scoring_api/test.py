@@ -168,7 +168,10 @@ class TestSuite(unittest.TestCase):
     def test_ok_interests_request(self, arguments):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "clients_interests", "arguments": arguments}
         self.set_valid_auth(request)
-        with unittest.mock.patch('store.Store.get') as mock:
+        with (
+            unittest.mock.patch('store.Store.initialize'),
+            unittest.mock.patch('store.Store.get') as mock,
+        ):
             mock.return_value = None
             response, code = self.get_response(request)
         self.assertEqual(HTTPStatus.OK, code, arguments)
