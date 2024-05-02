@@ -244,7 +244,7 @@ def test_get_interests(mocker, client_id, cache_value, expected_value):
         (
             {"phone": 79175002040, "first_name": "a", "last_name": "b", "birthday": "01.01.2000"},
             "uid:afbddf8bf6a2092b1d30797fe746eb67",
-        )
+        ),
     ),
 )
 def test_get_cache_key(input_value, expected_value):
