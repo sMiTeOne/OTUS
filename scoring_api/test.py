@@ -2,10 +2,10 @@ import hashlib
 import datetime
 import unittest
 import functools
+from unittest.mock import patch
 
 import api
 from enums import HTTPStatus
-from unittest.mock import patch
 
 
 def cases(cases):

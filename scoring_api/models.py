@@ -5,6 +5,7 @@ from abc import (
 from copy import deepcopy
 
 from enums import HTTPStatus
+from store import Cache
 from fields import (
     BaseField,
     CharField,
@@ -20,7 +21,6 @@ from scoring import (
     get_score,
     get_interests,
 )
-from store import Cache
 
 ADMIN_LOGIN = 'admin'
 

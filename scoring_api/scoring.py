@@ -14,6 +14,7 @@ def get_cache_key(first_name, last_name, phone, birthday) -> str:
     encoded_key_parts = "".join(key_parts).encode('utf-8')
     return "uid:" + hashlib.md5(encoded_key_parts).hexdigest()
 
+
 def get_score(store: Cache, phone=None, email=None, birthday=None, gender=None, first_name=None, last_name=None):
     primary_key = get_cache_key(first_name, last_name, phone, birthday)
     if cached_data := store.cache_get(primary_key=primary_key):

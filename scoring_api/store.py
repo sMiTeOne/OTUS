@@ -3,8 +3,7 @@ from tarantool.response import Response as TarantoolResponse
 
 
 class Cache:
-
-    def __init__(self, space : str, host : str = 'localhost', port : int = 3301):
+    def __init__(self, space: str, host: str = 'localhost', port: int = 3301):
         self.host = host
         self.port = port
         self.space = space
