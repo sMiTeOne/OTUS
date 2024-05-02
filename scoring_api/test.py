@@ -230,5 +230,27 @@ def test_get_interests(mocker, client_id, cache_value, expected_value):
     assert actual_value == expected_value
 
 
+@pytest.mark.parametrize(
+    'input_value, expected_value',
+    (
+        (
+            {"phone": "79175002040", "first_name": None, "last_name": None, "birthday": None},
+            "uid:df772fb46c4f5942b6bf98e7c5cfdb20",
+        ),
+        (
+            {"phone": 79175002040, "first_name": None, "last_name": None, "birthday": None},
+            "uid:df772fb46c4f5942b6bf98e7c5cfdb20",
+        ),
+        (
+            {"phone": 79175002040, "first_name": "a", "last_name": "b", "birthday": "01.01.2000"},
+            "uid:afbddf8bf6a2092b1d30797fe746eb67",
+        )
+    ),
+)
+def test_get_cache_key(input_value, expected_value):
+    actual_value = scoring.get_cache_key(**input_value)
+    assert actual_value == expected_value
+
+
 if __name__ == "__main__":
     unittest.main()
