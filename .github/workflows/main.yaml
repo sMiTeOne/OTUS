@@ -51,4 +51,4 @@ jobs:
         run: python -m black . --check
       - name: unit tests
         working-directory: ${{ env.app_name }}
-        run: python test.py
+        run: pytest test.py

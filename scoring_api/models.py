@@ -5,7 +5,7 @@ from abc import (
 from copy import deepcopy
 
 from enums import HTTPStatus
-from store import Cache
+from store import Store
 from fields import (
     BaseField,
     CharField,
@@ -52,6 +52,8 @@ class Serializer(ABC):
 
 
 class ClientsInterestsRequest(Serializer):
+    CACHE = Store('clients')
+
     client_ids = ClientIDsField(required=True, nullable=False)
     date = DateField(required=False, nullable=True)
 
@@ -60,7 +62,7 @@ class ClientsInterestsRequest(Serializer):
         if self.errors:
             return self.errors, HTTPStatus.INVALID_REQUEST
         context["nclients"] = len(arguments['client_ids'])
-        return {client_id: get_interests() for client_id in arguments['client_ids']}, HTTPStatus.OK
+        return {client_id: get_interests(self.CACHE, client_id) for client_id in arguments['client_ids']}, HTTPStatus.OK
 
 
 class OnlineScoreRequest(Serializer):
@@ -69,7 +71,7 @@ class OnlineScoreRequest(Serializer):
         {'gender', 'birthday'},
         {'first_name', 'last_name'},
     )
-    CACHE = Cache('users')
+    CACHE = Store('users')
 
     first_name = CharField(required=False, nullable=True)
     last_name = CharField(required=False, nullable=True)
@@ -87,7 +89,6 @@ class OnlineScoreRequest(Serializer):
         if context["login"] == ADMIN_LOGIN:
             score = 42
         else:
-            self.CACHE.initialize()
             score = get_score(self.CACHE, **arguments)
         return {'score': score}, HTTPStatus.OK
 

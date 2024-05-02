@@ -10,5 +10,5 @@ python api.py
 
 # Запуск тестов
 ```
-python test.py
+pytest test.py
 ```

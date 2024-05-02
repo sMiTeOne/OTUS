@@ -2,22 +2,23 @@ import hashlib
 import datetime
 import unittest
 import functools
-from unittest.mock import patch
+import unittest.mock
+import pytest
 
 import api
 from enums import HTTPStatus
+from store import Store
+import scoring
 
 
 def cases(cases):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args):
-            for c in cases:
-                new_args = args + (c if isinstance(c, tuple) else (c,))
+            for case in cases:
+                new_args = args + (case if isinstance(case, tuple) else (case,))
                 f(*new_args)
-
         return wrapper
-
     return decorator
 
 
@@ -122,12 +123,12 @@ class TestSuite(unittest.TestCase):
     def test_ok_score_request(self, arguments):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "online_score", "arguments": arguments}
         self.set_valid_auth(request)
-        with patch('store.Cache.initialize'):
+        with unittest.mock.patch('store.Store.__init__'):
             response, code = self.get_response(request)
-            self.assertEqual(HTTPStatus.OK, code, arguments)
-            score = response.get("score")
-            self.assertTrue(isinstance(score, (int, float)) and score >= 0, arguments)
-            self.assertEqual(sorted(self.context["has"]), sorted(arguments.keys()))
+        self.assertEqual(HTTPStatus.OK, code, arguments)
+        score = response.get("score")
+        self.assertTrue(isinstance(score, (int, float)) and score >= 0, arguments)
+        self.assertEqual(sorted(self.context["has"]), sorted(arguments.keys()))
 
     def test_ok_score_admin_request(self):
         arguments = {"phone": "79175002040", "email": "stupnikov@otus.ru"}
@@ -165,13 +166,57 @@ class TestSuite(unittest.TestCase):
     def test_ok_interests_request(self, arguments):
         request = {"account": "horns&hoofs", "login": "h&f", "method": "clients_interests", "arguments": arguments}
         self.set_valid_auth(request)
-        response, code = self.get_response(request)
+        with unittest.mock.patch('store.Store.get') as mock:
+            mock.return_value = None
+            response, code = self.get_response(request)
         self.assertEqual(HTTPStatus.OK, code, arguments)
         self.assertEqual(len(arguments["client_ids"]), len(response))
         self.assertTrue(
-            all(v and isinstance(v, list) and all(isinstance(i, (bytes, str)) for i in v) for v in response.values())
+            all(isinstance(v, list) and all(isinstance(i, (bytes, str)) for i in v) for v in response.values())
         )
         self.assertEqual(self.context.get("nclients"), len(arguments["client_ids"]))
+
+
+@pytest.mark.parametrize('arguments, cache_value, expected_value', (
+    (
+        {"phone": "79175002040", "email": "stupnikov@otus.ru"},
+        None,
+        3.0,
+    ),
+    (
+        {"phone": "79175002040", "email": "stupnikov@otus.ru"},
+        [['uid:3f76818f507fe7eb6422bd0703c64c88', 3.0]],
+        3.0,
+    ),
+))
+def test_get_score(mocker, arguments, cache_value, expected_value):
+    users_store = Store('users')
+    mocker.patch.object(Store, 'cache_get', return_value=cache_value)
+    with unittest.mock.patch('store.Store.cache_set') as cache_set:
+        actual_value = scoring.get_score(users_store, **arguments)
+        assert cache_set.called is not bool(cache_value)
+
+    assert actual_value == expected_value
+
+
+@pytest.mark.parametrize('client_id, cache_value, expected_value', (
+    (
+        1,
+        None,
+        [],
+    ),
+    (
+        1,
+        [['cid:1', ['cars', 'sport']]],
+        ['cars', 'sport'],
+    ),
+))
+def test_get_interests(mocker, client_id, cache_value, expected_value):
+    mocker.patch.object(Store, 'get', return_value=cache_value)
+    clients_store = Store('clients')
+    actual_value = scoring.get_interests(clients_store, client_id)
+
+    assert actual_value == expected_value
 
 
 if __name__ == "__main__":

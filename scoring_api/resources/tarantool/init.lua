@@ -9,6 +9,20 @@ box.space.users:format({
     { 'score', type = 'number' }
 })
 
-box.space.users:create_index('primary', {
+box.space.users:create_index('uid', {
     type = 'hash', parts = {'uid'}
+})
+
+
+users = box.schema.space.create('clients', {
+    if_not_exists = true
+})
+
+box.space.clients:format({
+    { 'cid', type = 'string' },
+    { 'interests', type = 'array' }
+})
+
+box.space.clients:create_index('cid', {
+    type = 'hash', parts = {'cid'}
 })
