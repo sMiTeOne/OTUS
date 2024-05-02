@@ -3,12 +3,12 @@ import datetime
 import unittest
 import functools
 import unittest.mock
-import pytest
 
 import api
+import pytest
+import scoring
 from enums import HTTPStatus
 from store import Store
-import scoring
 
 
 def cases(cases):
@@ -18,7 +18,9 @@ def cases(cases):
             for case in cases:
                 new_args = args + (case if isinstance(case, tuple) else (case,))
                 f(*new_args)
+
         return wrapper
+
     return decorator
 
 
@@ -177,18 +179,21 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(self.context.get("nclients"), len(arguments["client_ids"]))
 
 
-@pytest.mark.parametrize('arguments, cache_value, expected_value', (
+@pytest.mark.parametrize(
+    'arguments, cache_value, expected_value',
     (
-        {"phone": "79175002040", "email": "stupnikov@otus.ru"},
-        None,
-        3.0,
+        (
+            {"phone": "79175002040", "email": "stupnikov@otus.ru"},
+            None,
+            3.0,
+        ),
+        (
+            {"phone": "79175002040", "email": "stupnikov@otus.ru"},
+            [['uid:3f76818f507fe7eb6422bd0703c64c88', 3.0]],
+            3.0,
+        ),
     ),
-    (
-        {"phone": "79175002040", "email": "stupnikov@otus.ru"},
-        [['uid:3f76818f507fe7eb6422bd0703c64c88', 3.0]],
-        3.0,
-    ),
-))
+)
 def test_get_score(mocker, arguments, cache_value, expected_value):
     users_store = Store('users')
     mocker.patch.object(Store, 'cache_get', return_value=cache_value)
@@ -199,18 +204,21 @@ def test_get_score(mocker, arguments, cache_value, expected_value):
     assert actual_value == expected_value
 
 
-@pytest.mark.parametrize('client_id, cache_value, expected_value', (
+@pytest.mark.parametrize(
+    'client_id, cache_value, expected_value',
     (
-        1,
-        None,
-        [],
+        (
+            1,
+            None,
+            [],
+        ),
+        (
+            1,
+            [['cid:1', ['cars', 'sport']]],
+            ['cars', 'sport'],
+        ),
     ),
-    (
-        1,
-        [['cid:1', ['cars', 'sport']]],
-        ['cars', 'sport'],
-    ),
-))
+)
 def test_get_interests(mocker, client_id, cache_value, expected_value):
     mocker.patch.object(Store, 'get', return_value=cache_value)
     clients_store = Store('clients')
