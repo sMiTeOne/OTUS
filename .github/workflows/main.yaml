@@ -39,6 +39,8 @@ jobs:
         with:
           python-version: '3.10'
           architecture: 'x64'
+      - name: installing dependencies
+        run: pip install -r requirements.txt
       - name: installing test dependencies
         run: pip install -r requirements.test.txt
       - name: isort check
