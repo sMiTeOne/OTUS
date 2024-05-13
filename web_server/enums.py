@@ -9,5 +9,6 @@ class RequestMethods(str, Enum):
 class RequestHeaders(str, Enum):
     DATE = 'Date'
     SERVER = 'Server'
+    CONNECTION = 'Connection'
     CONTENT_TYPE = 'Content-Type'
     CONTENT_LENGTH = 'Content-Length'
