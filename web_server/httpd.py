@@ -1,7 +1,7 @@
 import os
 import sys
-from datetime import datetime
 from http import HTTPStatus
+from datetime import datetime
 from optparse import OptionParser
 from socketserver import (
     TCPServer,
@@ -34,7 +34,7 @@ class TCPHandler(BaseRequestHandler):
             self.request.sendall(response.encode())
             self.request.close()
             return None
-        
+
         if url.endswith('/'):
             url += INDEX_FILE
 
@@ -51,12 +51,11 @@ class TCPHandler(BaseRequestHandler):
             self.request.send(response.encode('utf-8'))
             self.request.close()
             return None
-        
 
     def _response(self, http_status: HTTPStatus) -> str:
         return f'HTTP/1.1 {http_status.value} {http_status.name}\r\n'
 
-    def _headers(self, length:int=0) -> str:
+    def _headers(self, length: int = 0) -> str:
         headers = {
             RequestHeaders.DATE: datetime.now().isoformat(),
             RequestHeaders.SERVER: 'localhost',
