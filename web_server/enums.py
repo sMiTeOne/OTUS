@@ -12,3 +12,15 @@ class RequestHeaders(str, Enum):
     CONNECTION = 'Connection'
     CONTENT_TYPE = 'Content-Type'
     CONTENT_LENGTH = 'Content-Length'
+
+
+class RequestContentType(str, Enum):
+    txt = 'content'
+    html = 'text/html'
+    css = 'text/css'
+    js = 'text/javascript'
+    jpg = 'image/jpeg'
+    jpeg = 'image/jpeg'
+    png = 'image/png'
+    gif = 'image/gif'
+    swf = 'application/x-shockwave-flash'

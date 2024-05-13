@@ -7,10 +7,12 @@ from socketserver import (
     TCPServer,
     BaseRequestHandler,
 )
+from urllib.parse import unquote
 
 from enums import (
     RequestHeaders,
     RequestMethods,
+    RequestContentType,
 )
 
 INDEX_FILE = 'index.html'
@@ -23,6 +25,7 @@ class TCPHandler(BaseRequestHandler):
         recieved_data = str(self.request.recv(1024), 'utf-8')
         try:
             method, url, *_ = recieved_data.split()
+            url = self._normalize_url(url)
         except ValueError:
             response = self._response(HTTPStatus.NOT_FOUND) + self._headers()
             self.request.sendall(response.encode())
@@ -35,35 +38,55 @@ class TCPHandler(BaseRequestHandler):
             self.request.close()
             return None
 
-        if url.endswith('/'):
-            url += INDEX_FILE
-
-        file_path = SERVER_FOLDER + url
+        file_path = SERVER_FOLDER + url 
         if not os.path.exists(file_path):
             response = self._response(HTTPStatus.NOT_FOUND) + self._headers()
             self.request.send(response.encode('utf-8'))
             self.request.close()
             return None
 
+        content_type = self._content_type(file_path)
         with open(file_path, encoding='utf-8') as file:
             file_data = file.read()
-            response = self._response(HTTPStatus.OK) + self._headers(length=len(file_data)) + '\r\n' + file_data
-            self.request.send(response.encode('utf-8'))
+            response = self._response(HTTPStatus.OK)
+            headers = self._headers(
+                content_length=len(file_data),
+                content_type=content_type,
+            )
+            file_data = self._file_data(file_data)
+            self.request.send((response + headers + file_data).encode('utf-8'))
             self.request.close()
             return None
 
     def _response(self, http_status: HTTPStatus) -> str:
         return f'HTTP/1.1 {http_status.value} {http_status.name}\r\n'
 
-    def _headers(self, length: int = 0) -> str:
+    def _headers(self, content_type: str = 'text/html', content_length: int = 0) -> str:
         headers = {
             RequestHeaders.DATE: datetime.now().isoformat(),
             RequestHeaders.SERVER: 'localhost',
             RequestHeaders.CONNECTION: 'connection',
-            RequestHeaders.CONTENT_TYPE: 'text/html; encoding=utf8',
-            RequestHeaders.CONTENT_LENGTH: length,
+            RequestHeaders.CONTENT_TYPE: content_type,
+            RequestHeaders.CONTENT_LENGTH: content_length,
         }
         return ''.join(f'{k}: {v}\r\n' for k, v in headers.items())
+    
+    def _file_data(self, file_data: str) -> str:
+        return '\r\n' + file_data
+    
+    def _content_type(self, file_path: str) -> str:
+        file_extension = file_path[file_path.rfind('.') + 1:]
+        return RequestContentType[file_extension].value
+
+    def _normalize_url(self, url: str) -> str:
+        url = unquote(url)
+        if '?' in url:
+            url = url[:url.find('?')]
+        if url.endswith('/'):
+            url = url.removesuffix('/')
+            file_name = url[url.rfind('/')+1:]
+            url += '/' + ('' if '.' in file_name else INDEX_FILE)
+        return url
 
 
 class Server(TCPServer):
