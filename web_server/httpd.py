@@ -1,15 +1,15 @@
 import sys
-import json
-import logging
+from http import HTTPStatus
 from optparse import OptionParser
 from socketserver import (
     TCPServer,
     BaseRequestHandler,
 )
-from enums import RequestMethods, RequestHeaders
-from http import HTTPStatus
 
-
+from enums import (
+    RequestHeaders,
+    RequestMethods,
+)
 
 ALLOWED_METHODS = set(RequestMethods)
 
@@ -21,17 +21,15 @@ class TCPHandler(BaseRequestHandler):
         if method not in ALLOWED_METHODS:
             response = self._response(HTTPStatus.METHOD_NOT_ALLOWED)
             self.request.sendall(response.encode())
-            #self.request.send(recieved_data.encode('utf-8'))
         else:
             response = self._response(HTTPStatus.OK) + self._headers()
             print(response)
             self.request.send(response.encode('utf-8'))
         self.request.close()
 
-
     def _response(self, http_status: HTTPStatus) -> str:
         return f'HTTP/1.1 {http_status.value} {http_status.name}\r\n'
-    
+
     def _headers(self) -> str:
         headers = {
             RequestHeaders.SERVER: 'localhost',
@@ -47,13 +45,11 @@ class Server(TCPServer):
         TCPServer.__init__(self, server_address, handler)
 
 
-
-
 if __name__ == "__main__":
     op = OptionParser()
     op.add_option("-r", "--root", action="store", default='documents')
     opts, args = op.parse_args()
-    
+
     address = ('localhost', 80)
     server = Server(address, TCPHandler)
 
