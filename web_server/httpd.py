@@ -38,7 +38,7 @@ class TCPHandler(BaseRequestHandler):
             self.request.close()
             return None
 
-        file_path = SERVER_FOLDER + url 
+        file_path = SERVER_FOLDER + url
         if not os.path.exists(file_path):
             response = self._response(HTTPStatus.NOT_FOUND) + self._headers()
             self.request.send(response.encode('utf-8'))
@@ -70,21 +70,21 @@ class TCPHandler(BaseRequestHandler):
             RequestHeaders.CONTENT_LENGTH: content_length,
         }
         return ''.join(f'{k}: {v}\r\n' for k, v in headers.items())
-    
+
     def _file_data(self, file_data: str) -> str:
         return '\r\n' + file_data
-    
+
     def _content_type(self, file_path: str) -> str:
-        file_extension = file_path[file_path.rfind('.') + 1:]
+        file_extension = file_path[file_path.rfind('.') + 1 :]
         return RequestContentType[file_extension].value
 
     def _normalize_url(self, url: str) -> str:
         url = unquote(url)
         if '?' in url:
-            url = url[:url.find('?')]
+            url = url[: url.find('?')]
         if url.endswith('/'):
             url = url.removesuffix('/')
-            file_name = url[url.rfind('/')+1:]
+            file_name = url[url.rfind('/') + 1 :]
             url += '/' + ('' if '.' in file_name else INDEX_FILE)
         return url
 
