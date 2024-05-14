@@ -134,18 +134,18 @@ class HttpServer(unittest.TestCase):
             self.assertEqual(data, "<html><body>Page Sample</body></html>\n")
 
     def test_large_file(self):
-      """large file downloaded correctly"""
-      self.conn.request("GET", "/httptest/wikipedia_russia.html")
-      r = self.conn.getresponse()
-      data = r.read()
-      length = r.getheader("Content-Length")
-      self.assertEqual(int(r.status), 200)
-      self.assertEqual(int(length), 954824)
-      self.assertEqual(len(data), 954824)
-      if v3:
-        self.assertIn(b"Wikimedia Foundation, Inc.", data)
-      else:
-        self.assertIn("Wikimedia Foundation, Inc.", data)
+        """large file downloaded correctly"""
+        self.conn.request("GET", "/httptest/wikipedia_russia.html")
+        r = self.conn.getresponse()
+        data = r.read()
+        length = r.getheader("Content-Length")
+        self.assertEqual(int(r.status), 200)
+        self.assertEqual(int(length), 954824)
+        self.assertEqual(len(data), 954824)
+        if v3:
+            self.assertIn(b"Wikimedia Foundation, Inc.", data)
+        else:
+            self.assertIn("Wikimedia Foundation, Inc.", data)
 
     def test_document_root_escaping(self):
         """document root escaping forbidden"""
@@ -175,53 +175,54 @@ class HttpServer(unittest.TestCase):
         self.assertIn(int(r.status), (400, 405))
 
     def test_head_method(self):
-      """head method support"""
+        """head method support"""
 
-      s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      s.connect((self.host, self.port))
-      if v3:
-        s.send(b"HEAD /httptest/dir2/page.html HTTP/1.0\r\n\r\n")
-        data = b""
-      else:
-        s.send("HEAD /httptest/dir2/page.html HTTP/1.0\r\n\r\n")
-        data = ""
-      while 1:
-        buf = s.recv(1024)
-        if not buf: break
-        data += buf
-      s.close()
-
-      if v3:
-        self.assertGreater(data.find(b"\r\n\r\n"), 0, "no empty line with CRLF found")
-        (head, body) = re.split(b"\r\n\r\n", data, 1)
-        headers = head.split(b"\r\n")
-        self.assertGreater(len(headers), 0, "no headers found")
-      else:
-        self.assertGreater(data.find("\r\n\r\n"), 0, "no empty line with CRLF found")
-        (head, body) = re.split("\r\n\r\n", data, 1)
-        headers = head.split("\r\n")
-        self.assertGreater(len(headers), 0, "no headers found")
-
-      statusline = headers.pop(0)
-      if v3:
-        (proto, code, status) = statusline.split(b" ");
-      else:
-        (proto, code, status) = statusline.split(" ");
-      h = {}
-      for k,v in enumerate(headers):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((self.host, self.port))
         if v3:
-          (name, value) = re.split(b'\s*:\s*', v, 1)
+            s.send(b"HEAD /httptest/dir2/page.html HTTP/1.0\r\n\r\n")
+            data = b""
         else:
-          (name, value) = re.split('\s*:\s*', v, 1)
-        h[name] = value
-      if (int(code) == 200):
+            s.send("HEAD /httptest/dir2/page.html HTTP/1.0\r\n\r\n")
+            data = ""
+        while 1:
+            buf = s.recv(1024)
+            if not buf:
+                break
+            data += buf
+        s.close()
+
         if v3:
-          self.assertEqual(int(h[b'Content-Length']), 38)
+            self.assertGreater(data.find(b"\r\n\r\n"), 0, "no empty line with CRLF found")
+            (head, body) = re.split(b"\r\n\r\n", data, 1)
+            headers = head.split(b"\r\n")
+            self.assertGreater(len(headers), 0, "no headers found")
         else:
-          self.assertEqual(int(h['Content-Length']), 38)
-        self.assertEqual(len(body), 0)
-      else:
-        self.assertIn(int(code), (400,405))
+            self.assertGreater(data.find("\r\n\r\n"), 0, "no empty line with CRLF found")
+            (head, body) = re.split("\r\n\r\n", data, 1)
+            headers = head.split("\r\n")
+            self.assertGreater(len(headers), 0, "no headers found")
+
+        statusline = headers.pop(0)
+        if v3:
+            (proto, code, status) = statusline.split(b" ")
+        else:
+            (proto, code, status) = statusline.split(" ")
+        h = {}
+        for k, v in enumerate(headers):
+            if v3:
+                (name, value) = re.split(b'\s*:\s*', v, 1)
+            else:
+                (name, value) = re.split('\s*:\s*', v, 1)
+            h[name] = value
+        if int(code) == 200:
+            if v3:
+                self.assertEqual(int(h[b'Content-Length']), 38)
+            else:
+                self.assertEqual(int(h['Content-Length']), 38)
+            self.assertEqual(len(body), 0)
+        else:
+            self.assertIn(int(code), (400, 405))
 
     def test_filetype_html(self):
         """Content-Type for .html"""
@@ -260,64 +261,64 @@ class HttpServer(unittest.TestCase):
         self.assertIn(ctype, ("application/x-javascript", "application/javascript", "text/javascript"))
 
     def test_filetype_jpg(self):
-      """Content-Type for .jpg"""
-      self.conn.request("GET", "/httptest/160313.jpg")
-      r = self.conn.getresponse()
-      data = r.read()
-      length = r.getheader("Content-Length")
-      ctype = r.getheader("Content-Type")
-      self.assertEqual(int(r.status), 200)
-      self.assertEqual(int(length), 267037)
-      self.assertEqual(len(data), 267037)
-      self.assertEqual(ctype, "image/jpeg")
+        """Content-Type for .jpg"""
+        self.conn.request("GET", "/httptest/160313.jpg")
+        r = self.conn.getresponse()
+        data = r.read()
+        length = r.getheader("Content-Length")
+        ctype = r.getheader("Content-Type")
+        self.assertEqual(int(r.status), 200)
+        self.assertEqual(int(length), 267037)
+        self.assertEqual(len(data), 267037)
+        self.assertEqual(ctype, "image/jpeg")
 
     def test_filetype_jpeg(self):
-      """Content-Type for .jpeg"""
-      self.conn.request("GET", "/httptest/ef35c.jpeg")
-      r = self.conn.getresponse()
-      data = r.read()
-      length = r.getheader("Content-Length")
-      ctype = r.getheader("Content-Type")
-      self.assertEqual(int(r.status), 200)
-      self.assertEqual(int(length), 160462)
-      self.assertEqual(len(data), 160462)
-      self.assertEqual(ctype, "image/jpeg")
+        """Content-Type for .jpeg"""
+        self.conn.request("GET", "/httptest/ef35c.jpeg")
+        r = self.conn.getresponse()
+        data = r.read()
+        length = r.getheader("Content-Length")
+        ctype = r.getheader("Content-Type")
+        self.assertEqual(int(r.status), 200)
+        self.assertEqual(int(length), 160462)
+        self.assertEqual(len(data), 160462)
+        self.assertEqual(ctype, "image/jpeg")
 
     def test_filetype_png(self):
-      """Content-Type for .png"""
-      self.conn.request("GET", "/httptest/logo.v2.png")
-      r = self.conn.getresponse()
-      data = r.read()
-      length = r.getheader("Content-Length")
-      ctype = r.getheader("Content-Type")
-      self.assertEqual(int(r.status), 200)
-      self.assertEqual(int(length), 1754)
-      self.assertEqual(len(data), 1754)
-      self.assertEqual(ctype, "image/png")
+        """Content-Type for .png"""
+        self.conn.request("GET", "/httptest/logo.v2.png")
+        r = self.conn.getresponse()
+        data = r.read()
+        length = r.getheader("Content-Length")
+        ctype = r.getheader("Content-Type")
+        self.assertEqual(int(r.status), 200)
+        self.assertEqual(int(length), 1754)
+        self.assertEqual(len(data), 1754)
+        self.assertEqual(ctype, "image/png")
 
     def test_filetype_gif(self):
-      """Content-Type for .gif"""
-      self.conn.request("GET", "/httptest/pic_ask.gif")
-      r = self.conn.getresponse()
-      data = r.read()
-      length = r.getheader("Content-Length")
-      ctype = r.getheader("Content-Type")
-      self.assertEqual(int(r.status), 200)
-      self.assertEqual(int(length), 1747)
-      self.assertEqual(len(data), 1747)
-      self.assertEqual(ctype, "image/gif")
+        """Content-Type for .gif"""
+        self.conn.request("GET", "/httptest/pic_ask.gif")
+        r = self.conn.getresponse()
+        data = r.read()
+        length = r.getheader("Content-Length")
+        ctype = r.getheader("Content-Type")
+        self.assertEqual(int(r.status), 200)
+        self.assertEqual(int(length), 1747)
+        self.assertEqual(len(data), 1747)
+        self.assertEqual(ctype, "image/gif")
 
     def test_filetype_swf(self):
-      """Content-Type for .swf"""
-      self.conn.request("GET", "/httptest/b16261023.swf")
-      r = self.conn.getresponse()
-      data = r.read()
-      length = r.getheader("Content-Length")
-      ctype = r.getheader("Content-Type")
-      self.assertEqual(int(r.status), 200)
-      self.assertEqual(int(length), 35344)
-      self.assertEqual(len(data), 35344)
-      self.assertEqual(ctype, "application/x-shockwave-flash")
+        """Content-Type for .swf"""
+        self.conn.request("GET", "/httptest/b16261023.swf")
+        r = self.conn.getresponse()
+        data = r.read()
+        length = r.getheader("Content-Length")
+        ctype = r.getheader("Content-Type")
+        self.assertEqual(int(r.status), 200)
+        self.assertEqual(int(length), 35344)
+        self.assertEqual(len(data), 35344)
+        self.assertEqual(ctype, "application/x-shockwave-flash")
 
 
 loader = unittest.TestLoader()
