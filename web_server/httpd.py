@@ -78,11 +78,11 @@ class TCPHandler(BaseRequestHandler):
         return RequestContentType[file_extension].value
 
     def _normalize_url(self, url: str) -> str:
-        url = unquote(url)
+        is_wrong_path = url.endswith('/')
+        url = os.path.normpath(unquote(url))
         if '?' in url:
             url = url[: url.find('?')]
-        if url.endswith('/'):
-            url = url.removesuffix('/')
+        if is_wrong_path:
             file_name = url[url.rfind('/') + 1 :]
             url += '/' + ('' if '.' in file_name else INDEX_FILE)
         return url
