@@ -22,44 +22,46 @@ ALLOWED_METHODS = set(RequestMethods)
 
 class TCPHandler(BaseRequestHandler):
     def handle(self):
-        recieved_data = str(self.request.recv(1024), 'utf-8')
+        received_data = str(self.request.recv(1024), 'utf-8')
         try:
-            method, url, *_ = recieved_data.split()
+            method, url, *_ = received_data.split()
             url = self._normalize_url(url)
         except ValueError:
-            response = self._response(HTTPStatus.NOT_FOUND) + self._headers()
-            self.request.sendall(response.encode())
+            response = self._response(HTTPStatus.NOT_FOUND)
+            self.request.send(response + self._headers())
             self.request.close()
             return None
 
         if method not in ALLOWED_METHODS:
-            response = self._response(HTTPStatus.METHOD_NOT_ALLOWED) + self._headers()
-            self.request.sendall(response.encode())
+            response = self._response(HTTPStatus.METHOD_NOT_ALLOWED)
+            self.request.send(response + self._headers())
             self.request.close()
             return None
 
         file_path = SERVER_FOLDER + url
         if not os.path.exists(file_path):
-            response = self._response(HTTPStatus.NOT_FOUND) + self._headers()
-            self.request.send(response.encode('utf-8'))
+            response = self._response(HTTPStatus.NOT_FOUND)
+            self.request.send(response + self._headers())
             self.request.close()
             return None
 
-        content_type = self._content_type(file_path)
-        with open(file_path, encoding='utf-8') as file:
+        with open(file_path, 'rb') as file:
             file_data = file.read()
             response = self._response(HTTPStatus.OK)
             headers = self._headers(
+                content_type=self._content_type(file.name),
                 content_length=len(file_data),
-                content_type=content_type,
             )
-            file_data = self._file_data(file_data)
-            self.request.send((response + headers + file_data).encode('utf-8'))
+
+            if method == RequestMethods.HEAD:
+                file_data = b''
+
+            self.request.send(response + headers + file_data)
             self.request.close()
             return None
 
     def _response(self, http_status: HTTPStatus) -> str:
-        return f'HTTP/1.1 {http_status.value} {http_status.name}\r\n'
+        return f'HTTP/1.1 {http_status.value} {http_status.phrase}\r\n'.encode()
 
     def _headers(self, content_type: str = 'text/html', content_length: int = 0) -> str:
         headers = {
@@ -69,10 +71,7 @@ class TCPHandler(BaseRequestHandler):
             RequestHeaders.CONTENT_TYPE: content_type,
             RequestHeaders.CONTENT_LENGTH: content_length,
         }
-        return ''.join(f'{k}: {v}\r\n' for k, v in headers.items())
-
-    def _file_data(self, file_data: str) -> str:
-        return '\r\n' + file_data
+        return (''.join(f'{k}: {v}\r\n' for k, v in headers.items()) + '\r\n').encode()
 
     def _content_type(self, file_path: str) -> str:
         file_extension = file_path[file_path.rfind('.') + 1 :]

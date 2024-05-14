@@ -15,7 +15,7 @@ class RequestHeaders(str, Enum):
 
 
 class RequestContentType(str, Enum):
-    txt = 'content'
+    txt = 'text/plain'
     html = 'text/html'
     css = 'text/css'
     js = 'text/javascript'
