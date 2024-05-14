@@ -100,7 +100,7 @@ if __name__ == "__main__":
     op.add_option("-r", "--root", action="store", default=SERVER_FOLDER)
     opts, args = op.parse_args()
 
-    address = ('localhost', 80)
+    address = ('localhost', 1337)
     server = Server(address, TCPHandler)
 
     try:
