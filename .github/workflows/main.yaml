@@ -73,6 +73,9 @@ jobs:
       - name: black check
         working-directory: ${{ env.app_name }}
         run: python -m black . --check
+      - name: run web server
+        working-directory: ${{ env.app_name }}
+        run: python httpd.py
       - name: unit tests
         working-directory: ${{ env.app_name }}
-        run: pytest test.py
+        run: python test.py
