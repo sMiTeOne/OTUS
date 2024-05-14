@@ -15,8 +15,7 @@ from enums import (
     RequestContentType,
 )
 
-INDEX_FILE = 'index.html'
-SERVER_FOLDER = os.path.dirname(os.path.abspath(__file__))
+DOCUMENT_ROOT = os.path.dirname(os.path.abspath(__file__))
 ALLOWED_METHODS = set(RequestMethods)
 
 
@@ -38,7 +37,7 @@ class TCPHandler(BaseRequestHandler):
             self.request.close()
             return None
 
-        file_path = SERVER_FOLDER + url
+        file_path = opts.root + url
         if not os.path.exists(file_path):
             response = self._response(HTTPStatus.NOT_FOUND)
             self.request.send(response + self._headers())
@@ -84,7 +83,7 @@ class TCPHandler(BaseRequestHandler):
             url = url[: url.find('?')]
         if is_wrong_path:
             file_name = url[url.rfind('/') + 1 :]
-            url += '/' + ('' if '.' in file_name else INDEX_FILE)
+            url += '/' + ('' if '.' in file_name else opts.index)
         return url
 
 
@@ -97,10 +96,13 @@ class Server(TCPServer):
 
 if __name__ == "__main__":
     op = OptionParser()
-    op.add_option("-r", "--root", action="store", default=SERVER_FOLDER)
+    op.add_option("-a", "--address", action="store", default='127.0.0.1')
+    op.add_option("-p", "--port", action="store", default=1337)
+    op.add_option("-r", "--root", action="store", default=DOCUMENT_ROOT)
+    op.add_option("-i", "--index", action="store", default="index.html")
     opts, args = op.parse_args()
 
-    address = ('localhost', 1337)
+    address = (opts.address, opts.port)
     server = Server(address, TCPHandler)
 
     try:
