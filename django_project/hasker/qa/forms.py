@@ -1,7 +1,7 @@
 from django.forms import (
     Textarea,
-    ModelForm,
     CharField,
+    ModelForm,
 )
 
 from .models import (

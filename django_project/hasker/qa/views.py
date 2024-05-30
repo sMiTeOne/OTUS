@@ -59,7 +59,7 @@ class CreateQuestion(CreateView):
 def create_answer(request, slug):
     form = AnswerForm(request.POST)
     if form.is_valid():
-        a : Answer = form.save(commit=False)
+        a: Answer = form.save(commit=False)
         a.set_question_and_user(slug, request.user)
         a.send_notification(request)
     return redirect("show_question", slug)
