@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     # hasker
     "account",
     "search",
-    "hasker",
+    "main",
     "qa",
 ]
 
@@ -51,13 +51,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "hasker.urls"
+ROOT_URLCONF = "main.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.join(BASE_DIR, "hasker/templates"),
+            os.path.join(BASE_DIR, "main/templates"),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -74,7 +74,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "hasker.wsgi.application"
+WSGI_APPLICATION = "main.wsgi.application"
 
 
 # Database
@@ -134,7 +134,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "../media")
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "hasker/static"),
+    os.path.join(BASE_DIR, "main/static"),
 ]
 
 # Simple JWT settings

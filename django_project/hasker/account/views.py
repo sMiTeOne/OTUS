@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from hasker.mixins import UnauthenticatedOnlyMixin
+from main.mixins import UnauthenticatedOnlyMixin
 from account.models import User
 from django.views.generic import (
     CreateView,
