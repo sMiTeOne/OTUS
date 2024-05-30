@@ -5,7 +5,6 @@ from django.db import (
     models,
     transaction,
 )
-from unidecode import unidecode
 from django.http import HttpRequest
 from django.urls import reverse
 from account.models import User
@@ -96,13 +95,12 @@ class Question(BaseQAItem):
 
     @staticmethod
     def _unique_slug(value):
-        slug = slugify(unidecode(value))
-        unique_slug = slug
+        slug = slugify(value)
         for i in itertools.count():
-            if Question.objects.filter(slug=unique_slug).exists():
-                unique_slug = "{}-{}".format(slug, i)
+            if Question.objects.filter(slug=slug).exists():
+                slug = f"{slug}-{i}"
             else:
-                return unique_slug
+                return slug
 
     @staticmethod
     def search(q):
