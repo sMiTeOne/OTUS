@@ -1,7 +1,7 @@
 # Запуск
 Проект запускается из директории `.django_project\hasker`
 ```
-python manage.py runserver
+python - m manage runserver
 ```
 
 
