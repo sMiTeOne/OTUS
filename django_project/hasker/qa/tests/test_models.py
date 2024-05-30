@@ -19,22 +19,24 @@ class TestHordeVoting(TestCase):
             user.save()
             users.append(user)
 
-        q = Question.objects.create(author=users[0], slug="qwerty")
-        a = Answer.objects.create(author=users[1], question=q)
+        question = Question(author=users[0], slug="qwerty")
+        answer = Answer(author=users[1], question=question)
+        question.save()
+        answer.save()
 
         for user in users:
-            q.update_rating(user, 1)
-            a.update_rating(user, -1)
+            question.update_rating(user, 1)
+            answer.update_rating(user, -1)
 
     def setUp(self):
         pass
 
     def test_rating(self):
-        q = Question.objects.first()
-        a = Answer.objects.first()
+        question = Question.objects.first()
+        answer = Answer.objects.first()
         votes_count = Vote.objects.count()
-        self.assertEqual(q.rating, self.expected_rating)
-        self.assertEqual(a.rating, -self.expected_rating)
+        self.assertEqual(question.rating, self.expected_rating)
+        self.assertEqual(answer.rating, -self.expected_rating)
         self.assertEqual(votes_count, 2 * self.expected_rating)
 
 
@@ -51,8 +53,10 @@ class TestSinglePersonVoting(TestCase):
     def setUp(self):
         Question.objects.all().delete()
         Answer.objects.all().delete()
-        q = Question.objects.create(author=self.user, slug="qwe")
-        Answer.objects.create(author=self.user, question=q)
+        question = Question(author=self.user, slug="qwerty")
+        answer = Answer(author=self.user, question=question)
+        question.save()
+        answer.save()
 
     def test_vote_once(self):
         q = Question.objects.first()
@@ -89,9 +93,10 @@ class TestAnswerApprove(TestCase):
     def setUp(self):
         Question.objects.all().delete()
         Answer.objects.all().delete()
-        q = Question.objects.create(author=self.user, slug="qwe")
-        Answer.objects.create(author=self.user, question=q)
-        Answer.objects.create(author=self.user, question=q)
+        question = Question(author=self.user, slug="qwe")
+        question.save()
+        Answer(author=self.user, question=question).save()
+        Answer(author=self.user, question=question).save()
 
     def test_answers(self):
         q = Question.objects.first()
@@ -117,13 +122,15 @@ class TestAnswerApprove(TestCase):
 class TestTagsList(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.q = Question.objects.create(title="question", content="question")
-        cls.tags = {"tag_{:02}".format(i) for i in range(5)}
+        cls.question = Question(title="question", content="question")
+        cls.question.save()
+        cls.tags = {f"tag_{i}" for i in range(5)}
 
         for tag in cls.tags:
-            t = Tag.objects.create(title=tag)
-            cls.q.tags.add(t)
+            tag = Tag(title=tag)
+            tag.save()
+            cls.question.tags.add(tag)
 
     def test_tags_list(self):
-        tags = set(self.q.tags_list)
+        tags = set(self.question.tags_list)
         self.assertEqual(tags, self.__class__.tags)

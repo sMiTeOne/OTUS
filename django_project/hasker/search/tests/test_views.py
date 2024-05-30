@@ -9,11 +9,20 @@ from django.urls import reverse
 class TestSearch(TestCase):
     @classmethod
     def setUpTestData(cls):
-        t1 = Tag.objects.create(title="python")
-        t2 = Tag.objects.create(title="django")
+        tag1 = Tag(title="python")
+        tag2 = Tag(title="django")
 
-        Question.objects.create(title="randomize", content="qwerty").tags.add(t1)
-        Question.objects.create(title="qwerty", content="random").tags.add(t2)
+        tag1.save()
+        tag2.save()
+
+        question1 = Question(title="randomize", content="qwerty")
+        question2 = Question(title="qwerty", content="random")
+
+        question1.save()
+        question2.save()
+
+        question1.tags.add(tag1)
+        question2.tags.add(tag2)
 
     def test_if_it_is_searching_in_both_fields(self):
         response = self.client.get(reverse("search"), {"q": "randomization other"})

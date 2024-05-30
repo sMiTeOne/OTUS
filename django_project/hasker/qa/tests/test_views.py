@@ -7,14 +7,15 @@ from account.models import User
 class TestPagination(TestCase):
     @classmethod
     def setUpTestData(cls):
-        user = User.objects.create(username="test1", email="test1@hasker.com", password="123456")
+        user = User(username="test1", email="test1@hasker.com", password="123456")
+        user.save()
         for i in range(100):
-            Question.objects.create(
-                title="Question {}".format(i),
-                slug="question_{}".format(i),
-                content="lorem ipsum blah blah",
+            Question(
+                title=f"Question {i}",
+                slug=f"question_{i}",
+                content="content",
                 author=user,
-            )
+            ).save()
 
     def test_questions_pagination(self):
         response = self.client.get(reverse("index"))
