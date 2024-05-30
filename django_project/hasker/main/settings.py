@@ -1,15 +1,6 @@
 import os
 from datetime import timedelta
 
-import environ
-
-env = environ.Env(
-    DJANGO_DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, []),
-    INTERNAL_IPS=(list, []),
-)
-
-environ.Env.read_env()
 
 AUTH_USER_MODEL = "account.User"
 LOGIN_URL = "/account/login/"
@@ -81,10 +72,14 @@ WSGI_APPLICATION = "main.wsgi.application"
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(
-        # read connection string from env variable DATABASE_URL or use default
-        default="postgres://postgres:postgres@127.0.0.1:5432/hasker"
-    )
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "hasker",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
 }
 
 # the same for debug and prod
