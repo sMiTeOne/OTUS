@@ -2,8 +2,9 @@ version: '3.2'
 
 services:
   postgres:
-    image: postgres
+    image: postgres:13.3
     environment:
+      POSTGRES_DB: "hasker"
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       PGDATA: /data/postgres
