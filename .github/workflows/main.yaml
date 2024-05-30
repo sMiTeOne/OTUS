@@ -101,8 +101,8 @@ jobs:
         working-directory: ${{ env.app_name }}
         run: python -m black . --check
       - name: unit tests
-        working-directory: ${{ env.app_name }}
+        working-directory: ${{ env.app_name }}/hasker/
         run: python -m manage test -v 2 
       - name: run django project
-        working-directory: ${{ env.app_name }}
+        working-directory: ${{ env.app_name }}/hasker/
         run: python -m manage runserver &
