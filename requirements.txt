@@ -1,3 +1,5 @@
 Django==5.0.6
 environ==1.0
+psycopg2==2.9.6
+pillow==10.3.0
 tarantool==1.2.0
