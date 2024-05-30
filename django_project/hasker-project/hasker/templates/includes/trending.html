@@ -1,0 +1,21 @@
+<h4 class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">Trending</span>
+    <span class="badge badge-secondary badge-pill">
+        {{ trending_questions|length }}
+    </span>
+</h4>
+<ul class="list-group mb-3">
+    {%  for question in trending_questions %}
+        <li class="list-group-item d-flex justify-content-between lh-condensed">
+            <div>
+                <h6 class="my-0">
+                    <a href="{% url 'show_question' question.slug %}">
+                    {{ question.title }}
+                    </a>
+                </h6>
+                <small class="text-muted">{{ question.content|truncatechars:120 }}</small>
+            </div>
+            <span class="text-muted">{{ question.rating }}</span>
+       </li>
+    {%  endfor %}
+</ul>

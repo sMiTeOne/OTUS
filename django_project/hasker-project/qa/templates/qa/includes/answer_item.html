@@ -1,0 +1,55 @@
+<div class="row pb-2">
+    <div class="col-1 align-self-center">
+        {% if request.user != answer.author %}
+        {% include 'qa/includes/upvote_answer_form.html' %}
+        {% endif %}
+        <div class="text-center">
+            <p class="w-100 badge badge-primary">{{ answer.rating }}</p>
+        </div>
+        {% if request.user != answer.author %}
+        {% include 'qa/includes/downvote_answer_form.html' %}
+        {% endif %}
+    </div>
+    <div class="col-11">
+        <div class="card">
+            <div class="card-body border-bottom border-light">
+                <div class="card-text">
+                    {{ answer.content }}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        {% if user == question.author %}
+                        <form action="{% url 'approve_answer' question.slug answer.pk %}" method="POST">
+                            {% csrf_token %}
+                            {% if answer.approved %}
+                            <button class="btn btn-outline-success">Approved</button>
+                            {% else %}
+                            <button class="btn btn-outline-secondary">Approved</button>
+                            {% endif %}
+                        </form>
+                        {% else %}
+                        {% if answer.approved %}
+                        <span class="btn btn-outline-success disabled">Approved</span>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="col-5 offset-3">
+                        <div class="text-muted small">
+                            Answered {{ answer.created_at|timesince }} ago
+                        </div>
+                        <div>
+                            <img class="ml-2 mr-2" {% if answer.author.avatar %}
+                                src="{{ MEDIA_URL }}/{{ answer.author.avatar }}" {% else %}
+                                src="{{ '/static/hasker/images/avatars/default.png' }}" {% endif %} width="32"
+                                height="32" alt="avatar">
+                            <span class="text-muted align-bottom">{{ answer.author.username }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>Ask the question</h2>
+
+    <form action="." method="post">
+    {% csrf_token %}
+    {% include 'includes/bs4_form.html' with form=form %}
+    <div class="form-group row">
+        <div class="col-sm-10">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+    </form>
+
+{% endblock content %}
+
+

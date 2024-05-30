@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>
+        {% block title %}Hasker{% endblock title %}
+    </title>
+    <link rel="stylesheet" href="{% static 'hasker/css/vendor/bootstrap/bootstrap.min.css' %}">
+</head>
+
+<body>
+    {% include 'includes/navbar.html' %}
+    <main class="container ">
+        <div class="row pt-4">
+            <!-- right block -->
+            <div class="col-md-4 order-md-2 mb-4">
+                {% if user.is_authenticated %}
+                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                    <a href="{% url 'create_question' %}" class="btn btn-primary">Ask!</a>
+                </h4>
+                {% endif %}
+
+                {% include 'includes/trending.html' %}
+
+            </div>
+            <!-- end right block -->
+            <div class="col-md-8 order-md-1">
+                <!-- Main content -->
+                {% block content %}
+                {% block navigation %}{% endblock navigation %}
+                {% endblock content %}
+                <!-- Main content end -->
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'hasker/js/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'hasker/js/vendor/bootstrap/bootstrap.min.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+<form
+    action="{% url 'vote_question' question.slug 1 %}"
+    method="POST"
+>
+    {% csrf_token %}
+    <button
+            class="btn btn-outline-success btn-sm"
+    >
+        Up
+    </button>
+</form>

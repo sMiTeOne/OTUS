@@ -1,0 +1,45 @@
+<table class="table table-hover">
+    <tbody>
+    {% for question in questions %}
+        <tr>
+            <td class="text text-center">
+                <div class="">{{ question.rating }}</div>
+                <div class="text-muted small">rating</div>
+            </td>
+            <td class="text-center">
+                <div>{{ question.answers.count }}</div>
+                <div
+                    class="text-muted small"
+                >
+                    answer{{ question.answers.count|pluralize:",s" }}</div>
+            </td>
+            <td class="text-center">
+                <div>{{ question.author.username }}</div>
+                <div class="text-muted small">
+                    {{ question.created_at|timesince }}
+                    ago
+                </div>
+            </td>
+            <td>
+                <div>
+                    <a
+                        href="{% url 'show_question' question.slug %}"
+                    >
+                        {{ question.title }}
+                    </a>
+                </div>
+                <div>
+                    {% for tag in question.tags.all %}
+                        <a
+                            class="badge badge-info"
+                            href="{% url 'search_tag' tag %}"
+                        >
+                            {{ tag }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

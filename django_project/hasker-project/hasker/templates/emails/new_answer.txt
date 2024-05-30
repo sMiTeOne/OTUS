@@ -1,0 +1,7 @@
+Hi {{ answer.question.author.username }},
+
+Your question "{{ answer.question.title }}", have new answer:
+
+{{ answer.content }}
+
+Check new answer on the Hasker {{ link }}

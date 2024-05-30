@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- block title -->
+    <title> {% block title %} Hasker {% endblock title %}</title>
+    <!-- end block title -->
+    <link rel="stylesheet" href="{% static 'hasker/css/bootstrap.min.css' %}">
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">Hasker</a>
+        <!-- burger -->
+        <button
+                class="navbar-toggler" type="button" data-toggle="collapse"
+                data-target="#navbarsExample04" aria-controls="navbarsExample04"
+                aria-expanded="false" aria-label="Toggle navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- burger ends -->
+    </div>
+</nav>
+<main class="container ">
+    <div class="row pt-4">
+        <div class="col-md-8 order-md-1">
+            <!-- Main content -->
+            {% block content %}
+            {% endblock content %}
+            <!-- Main content end -->
+        </div>
+    </div>
+</main>
+<script src="{% static 'hasker/js/jquery-3.3.1.min.js' %}"></script>
+<script src="{% static 'hasker/js/bootstrap.min.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<ul class="nav nav-pills">
+    <li class="nav-item">
+        <h4>
+            <a
+                class="nav-link {% if not request.GET.sort %} active {% endif %}"
+                href="{% url 'index' %}">New questions
+            </a>
+        </h4>
+    </li>
+    <li class="nav-item">
+        <h4>
+            <a
+                class="nav-link {% if request.GET.sort == 'rating' %} active {% endif %}"
+                href="{% url 'index' %}?sort=rating">Hot questions
+            </a>
+        </h4>
+    </li>
+</ul>

@@ -1,0 +1,37 @@
+[
+  {
+    "model": "qa.question",
+    "pk": 1,
+    "fields": {
+      "content": "Why do you want to kill me?",
+      "created_at": "2019-01-09T18:56:27.435Z",
+      "rating": -1,
+      "title": "Batman's question",
+      "slug": "batmans-question",
+      "approved_answer": 1,
+      "author": 2,
+      "tags": [
+        3,
+        6
+      ]
+    }
+  },
+  {
+    "model": "qa.question",
+    "pk": 2,
+    "fields": {
+      "content": "Why so serious?",
+      "created_at": "2019-01-09T19:00:52.748Z",
+      "rating": 0,
+      "title": "Joker's question",
+      "slug": "jokers-question",
+      "approved_answer": null,
+      "author": 3,
+      "tags": [
+        8,
+        10,
+        14
+      ]
+    }
+  }
+]

@@ -1,0 +1,78 @@
+<html>
+<body>
+<div width="100%" style="margin:0;background:#f3f3f5">
+    <div style="max-width:660px;margin:auto">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width:660px;padding-top: 30px;">
+            <tbody>
+            <!-- Greeting begins -->
+            <tr><td style="padding:20px 40px 0;font-family:Arial;font-size:16px;color:#7f868d" valign="top" align="left" bgcolor="#ffffff">
+                    Hi {{ answer.question.author.username }},
+            </td></tr>
+            <tr><td bgcolor="#ffffff" align="left" valign="top" style="padding:20px 40px 0;font-family:Arial;font-size:16px;color:#7f868d">
+                    Your question <b>{{ answer.question.title }}</b>,
+                    have new answer
+            </td></tr>
+            <tr><td bgcolor="#ffffff" align="left" valign="top" style="padding:20px 40px 0;font-family:Arial;font-size:16px;color:#7f868d">
+                    {{ answer.content }}
+            </td></tr>
+            <!-- Message ends -->
+            <tr><td align="center" valign="top" style="padding:20px 40px;background-color:white">
+                <table cellspacing="0" cellpadding="0" border="0" align="center">
+                    <tbody>
+                        <tr><td style="padding-bottom:10px;font-family:arial,sans-serif;font-size:14px;line-height:21px;color:#54595f;text-align:left">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width:450px">
+                                <tbody>
+                                    <tr><td style="border-radius:3px;background:#0095ff" class="m_4396638972442616999button-td-blue">
+            <!-- Hyperlink -->
+                                        <a href="{{ link }}" target="_blank">
+            <!-- Hyperlink ends -->
+                                            <span style="color:#ffffff" class="m_4396638972442616999button-link">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;Check new answer on the Hasker&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </span>
+                                        </a>
+                                    </td></tr>
+                                </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <table cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width:660px"
+               role="presentation">
+            <tbody>
+            <tr>
+                <td style="padding:20px 20px 0;width:100%;font-size:11px;font-family:arial,sans-serif;line-height:14px;color:#9ea3a9">
+                    You're receiving this message because your Hasker activity triggered this
+                    tip or reminder.
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:5px 20px 0;width:100%;font-size:11px;font-family:arial,sans-serif;line-height:14px;color:#9ea3a9">
+                    <a href="#" style="color:#9ea3a9;text-decoration:underline" target="_blank">
+                        Unsubscribe from emails like this
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#" style="color:#9ea3a9;text-decoration:underline" target="_blank">
+                        Edit email settings
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#" style="color:#9ea3a9;text-decoration:underline" target="_blank">
+                        Leave feedback
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:0 20px 8px 20px;width:100%;font-size:12px;line-height:16px;font-family:arial,sans-serif;color:#93999f;text-align:left"
+                    class="m_4396638972442616999x-gmail-data-detectors">
+                    <strong>Hasker</strong>, 110 William Street, 28th floor, New York, NY 10038
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

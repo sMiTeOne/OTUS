@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    {% include 'qa/includes/navigation.html' %}
+
+    <div class="my-3 p-3 bg-white rounded box-shadow">
+        <h5 class="border-bottom border-gray pb-2 mb-0">
+            {% if not request.GET.sort %}
+                Recent questions
+            {% else %}
+                Trending questions
+            {% endif %}
+        </h5>
+
+        {% include 'includes/questions_table.html' %}
+    </div>
+    {% include 'includes/pagination.html' with items=questions %}
+{% endblock content %}

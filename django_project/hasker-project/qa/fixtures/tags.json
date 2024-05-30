@@ -1,0 +1,114 @@
+[
+  {
+    "model": "qa.tag",
+    "pk": 1,
+    "fields": {
+      "title": "python"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 2,
+    "fields": {
+      "title": "java"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 3,
+    "fields": {
+      "title": "c++"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 4,
+    "fields": {
+      "title": "ruby"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 5,
+    "fields": {
+      "title": "c#"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 6,
+    "fields": {
+      "title": "c"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 7,
+    "fields": {
+      "title": "javascript"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 8,
+    "fields": {
+      "title": "php"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 9,
+    "fields": {
+      "title": "go"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 10,
+    "fields": {
+      "title": "perl"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 11,
+    "fields": {
+      "title": "haskell"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 12,
+    "fields": {
+      "title": "scala"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 13,
+    "fields": {
+      "title": "objective-c"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 14,
+    "fields": {
+      "title": "bash"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 15,
+    "fields": {
+      "title": "lua"
+    }
+  },
+  {
+    "model": "qa.tag",
+    "pk": 16,
+    "fields": {
+      "title": "clojure"
+    }
+  }
+]

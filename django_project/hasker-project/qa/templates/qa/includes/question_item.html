@@ -1,0 +1,49 @@
+<h2 class="pb-5">{{ question.title }}</h2>
+<div class="row pb-2">
+    <div class="col-1 align-self-center">
+        {% if request.user != question.author %}
+        {% include 'qa/includes/upvote_question_form.html' %}
+        {% endif %}
+        <div class="text-center">
+            <p class="w-100 badge badge-primary">{{ question.rating }}</p>
+        </div>
+        {% if request.user != question.author %}
+        {% include 'qa/includes/downvote_question_form.html' %}
+        {% endif %}
+    </div>
+    <div class="col-11">
+        <div class="card">
+            <div class="card-body border-bottom border-light">
+                <div class="card-text">
+                    {{ question.content }}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        {% for tag in question.tags.all %}
+                        <a href="{% url 'search_tag' tag %}" class="badge badge-info">
+                            {{ tag }}
+                        </a>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-5 offset-3">
+                        <div class="text-muted small">
+                            Asked {{ question.created_at|timesince }} ago
+                        </div>
+                        <div>
+                            <img class="ml-2 mr-2" {% if question.author.avatar %}
+                                src="{{ MEDIA_URL }}/{{ question.author.avatar }}" {% else %}
+                                src="{{ '/static/hasker/images/avatars/default.png' }}" {% endif %} width="32"
+                                height="32" alt="avatar">
+                            <span class="text-muted align-bottom">
+                                {{ question.author.username }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
