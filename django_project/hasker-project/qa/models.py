@@ -25,9 +25,9 @@ from .managers import (
 )
 
 
-class QAItems(IntEnum):
-    Question = 1
-    Answer = 2
+class BaseQAItems(IntEnum):
+    QUESTION = 1
+    ANSWER = 2
 
 
 class Tag(models.Model):
@@ -39,56 +39,51 @@ class Tag(models.Model):
 
 class Vote(models.Model):
     value = models.IntegerField()
-    """
-    I don't know idiomatic way to create polymorphic foreign keys
-    So we just store item type identifier and item id as multiple columns key
-    """
-    item_type = models.IntegerField(null=False)
-    item_id = models.IntegerField(null=False)
+    item_id = models.IntegerField()
+    item_type = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (("user", "item_id", "item_type"),)
 
 
-class QAItem(models.Model):
+class BaseQAItem(models.Model):
     item_type = None
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     rating = models.IntegerField(default=0)
-    objects = models.Manager()  # preserve default manager
+    objects = models.Manager()
 
     @transaction.atomic
     def update_rating(self, user: User, value: int):
-        v = Vote.objects.filter(item_type=self.item_type, item_id=self.id, user=user.id)
-        if v.exists():
-            self.rating -= v[0].value
-            v.delete()
+        vote = Vote.objects.filter(item_type=self.item_type, item_id=self.id, user=user.id)
+        if vote.exists():
+            self.rating -= vote[0].value
+            vote.delete()
         else:
             Vote.objects.create(user=user, item_type=self.item_type, item_id=self.id, value=value)
             self.rating += value
         self.save()
 
-    class Meta:  # important for model inheritance!
+    class Meta:
         abstract = True
 
 
-class Question(QAItem):
-    item_type = QAItems.Question
+class Question(BaseQAItem):
+    item_type = BaseQAItems.QUESTION
     title = models.CharField(max_length=120)
     slug = models.SlugField(max_length=120, unique=True)
     tags = models.ManyToManyField(Tag, blank=True)
     approved_answer = models.ForeignKey("Answer", null=True, on_delete=models.SET_NULL, related_name="approved_answer")
 
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="questions")
-    questions = QuestionManager()  # add custom manager
-    api_questions = ApiQuestionManager()
+    questions = QuestionManager()
 
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
+    def save(self):
         if not self.slug:
             self.slug = self._unique_slug(self.title)
         super().save()
@@ -111,31 +106,24 @@ class Question(QAItem):
 
     @staticmethod
     def search(q):
-        """
-        :param q:
-        :type q: str
-        :return: QuerySet
-        """
         search_vector = SearchVector("content") + SearchVector("title")
         search_query = None
         for token in q.split():
             token = token.strip()
-            if search_query is None:
-                search_query = SearchQuery(token)
-            else:
+            if search_query:
                 search_query &= SearchQuery(token)
+            else:
+                search_query = SearchQuery(token)
 
-        return Question.questions.annotate(
-            search=search_vector,
-        ).filter(search=search_query)
+        return Question.questions.annotate(search=search_vector).filter(search=search_query)
 
     @property
     def tags_list(self):
         return self.tags.values_list("title", flat=True)
 
 
-class Answer(QAItem):
-    item_type = QAItems.Answer
+class Answer(BaseQAItem):
+    item_type = BaseQAItems.ANSWER
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
     approved = models.BooleanField(default=False)
     answers = AnswerManager()
@@ -144,7 +132,7 @@ class Answer(QAItem):
     def approve(self):
         current_answer = self.question.approved_answer
 
-        if current_answer is not None:
+        if current_answer:
             current_answer.approved = False
             current_answer.save()
 

@@ -25,8 +25,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-INTERNAL_IPS = env("INTERNAL_IPS")
-
 # Application definition
 
 INSTALLED_APPS = [

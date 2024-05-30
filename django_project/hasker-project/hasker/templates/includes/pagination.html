@@ -3,50 +3,30 @@
 <nav aria-label="page navigation">
     <ul class="pagination">
         {% if items.has_previous %}
-            <li class="page-item">
-                <a
-                        class="page-link"
-                        href="?{% url_update page=items.previous_page_number %}"
-                >
-                    Previous
-                </a>
-            </li>
+        <li class="page-item">
+            <a class="page-link" href="?{% url_update page=items.previous_page_number %}">←</a>
+        </li>
         {% else %}
-            <li class="page-item disabled">
-                <a
-                        class="page-link"
-                        href="#"
-                >
-                    Previous
-                </a>
-            </li>
+        <li class="page-item disabled">
+            <a class="page-link" href="#">←</a>
+        </li>
         {% endif %}
 
         <li class="page-item active">
             <span class="page-link">
                 {{ items.number }} of {{ items.paginator.num_pages }}
-                <span class="sr-only">(Current)</span>
+                <span class="sr-only">⚬</span>
             </span>
         </li>
 
         {% if items.has_next %}
-            <li class="page-item">
-                <a
-                        class="page-link"
-                        href="?{% url_update page=items.next_page_number %}"
-                >
-                    Next
-                </a>
-            </li>
+        <li class="page-item">
+            <a class="page-link" href="?{% url_update page=items.next_page_number %}">→</a>
+        </li>
         {% else %}
-            <li class="page-item disabled">
-                <a
-                        class="page-link"
-                        href="#"
-                >
-                    Next
-                </a>
-            </li>
+        <li class="page-item disabled">
+            <a class="page-link" href="#">→</a>
+        </li>
         {% endif %}
     </ul>
 </nav>

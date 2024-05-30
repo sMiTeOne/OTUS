@@ -17,9 +17,9 @@ class SearchQuestion(BaseQuestionSearch):
     def get(self, *args, **kwargs):
         q = self.request.GET.get("q", "")
         if q.startswith("tag:"):
-            tag = q.split(":", 1)[1].strip()
-            return redirect("search_tag", tag)
-        return super(SearchQuestion, self).get(*args, **kwargs)
+            return redirect("search_tag", q[4:])
+        else:
+            return super(SearchQuestion, self).get(*args, **kwargs)
 
     def get_queryset(self) -> QuerySet:
         q = self.request.GET.get("q", "")

@@ -1,24 +1,17 @@
-from collections.abc import Sequence
-
 from qa.forms import (
     AnswerForm,
     QuestionForm,
 )
-from django.db import transaction
 from django.urls import reverse_lazy
-from hasker.utils import wrap_with_paginator
 from django.shortcuts import (
-    render,
     redirect,
     get_object_or_404,
 )
 from django.views.generic import (
-    FormView,
     ListView,
     CreateView,
-    UpdateView,
+    DetailView,
 )
-from django.db.models.query import QuerySet
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
@@ -34,13 +27,24 @@ class ShowQuestions(ListView):
     context_object_name = 'questions'
     template_name = "qa/main.html"
 
-    def get_queryset(self) -> QuerySet:
-        ordering = self.get_ordering()
-        return Question.questions.order_by(ordering)
-
     def get_ordering(self) -> str:
         ordering = self.request.GET.get("sort", "id")
         return f"-{ordering}"
+    
+
+class ShowQuestion(DetailView):
+    model = Question
+    template_name = "qa/show_question.html"
+    slug_url_kwarg = 'slug'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['answers'] = self.get_question_answers()
+        context['form'] = AnswerForm()
+        return context
+    
+    def get_question_answers(self):
+        return Answer.answers.filter(question=self.get_object()).order_by("-rating", "created_at")
 
 
 class CreateQuestion(CreateView):
@@ -49,34 +53,12 @@ class CreateQuestion(CreateView):
     template_name = "qa/create_question.html"
 
 
-def show_question(request, slug):
-    q = get_object_or_404(Question.questions, slug=slug)
-    page = request.GET.get("page", 1)
-    answers_list = Answer.answers.filter(question=q).order_by("-rating", "created_at")
-    answers = wrap_with_paginator(
-        objects_list=answers_list,
-        page=page,
-        per_page=30,
-    )
-    return render(
-        request,
-        "qa/show_question.html",
-        {"question": q, "form": AnswerForm(), "answers": answers},
-    )
-
-
-# class CreateAnswer(CreateView):
-#     form_class = AnswerForm
-#     success_url = reverse_lazy("show_question")
-#     template_name = "qa/show_question.html"
-
-
 @login_required(login_url=reverse_lazy("login"))
 @require_POST
 def create_answer(request, slug):
     form = AnswerForm(request.POST)
     if form.is_valid():
-        a = form.save(commit=False)  # type: Answer
+        a = form.save(commit=False)
         a.bind_with_question_and_user(slug, request.user)
         a.send_notification(request)
     return redirect("show_question", slug)
