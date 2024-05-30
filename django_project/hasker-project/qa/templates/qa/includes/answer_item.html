@@ -24,21 +24,21 @@
                         <form action="{% url 'approve_answer' question.slug answer.pk %}" method="POST">
                             {% csrf_token %}
                             {% if answer.approved %}
-                            <button class="btn btn-outline-success">Approved</button>
+                            <button class="btn btn-outline-success">★</button>
                             {% else %}
-                            <button class="btn btn-outline-secondary">Approved</button>
+                            <button class="btn btn-outline-secondary">★</button>
                             {% endif %}
                         </form>
                         {% else %}
                         {% if answer.approved %}
-                        <span class="btn btn-outline-success disabled">Approved</span>
+                        <span class="btn btn-outline-success disabled">★</span>
                         {% endif %}
                         {% endif %}
                     </div>
 
                     <div class="col-5 offset-3">
                         <div class="text-muted small">
-                            Answered {{ answer.created_at|timesince }} ago
+                            Ответил {{ answer.created_at }}
                         </div>
                         <div>
                             <img class="ml-2 mr-2" {% if answer.author.avatar %}

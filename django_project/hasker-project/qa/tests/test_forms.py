@@ -1,14 +1,8 @@
-# WARNING: absolute import is important
 from qa.forms import QuestionForm
 from django.test import TestCase
 
 
 class TestForm(TestCase):
-    """
-    Should I write tests like this?
-    It looks like testing django features
-    """
-
     def test_question_form_required_feilds(self):
         requests = [
             ({"title": "not empty"}, "empty content"),

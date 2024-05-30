@@ -9,10 +9,6 @@ from account.models import User
 
 
 class TestHordeVoting(TestCase):
-    """
-    test upvotes and downvotes
-    """
-
     expected_rating = 10
 
     @classmethod
@@ -69,11 +65,6 @@ class TestSinglePersonVoting(TestCase):
         self.assertEqual(votes_count, 2)
 
     def test_vote_twice(self):
-        """
-        check if vote reset when user votes twice on the same item
-
-        :return:
-        """
         q = Question.objects.first()
         a = Answer.objects.first()
         q.update_rating(self.user, 1)
@@ -106,7 +97,6 @@ class TestAnswerApprove(TestCase):
         q = Question.objects.first()
         answers = Answer.objects.filter(question=q)
         self.assertEqual(len(answers), 2)
-        # approve first answer
         answers[0].approve()
         q.refresh_from_db()
         for answer in answers:
@@ -115,7 +105,6 @@ class TestAnswerApprove(TestCase):
         self.assertTrue(answers[0].approved)
         self.assertFalse(answers[1].approved)
 
-        # approve the second answer, expect first answer will be "disapproved"
         answers[1].approve()
         q.refresh_from_db()
         for answer in answers:

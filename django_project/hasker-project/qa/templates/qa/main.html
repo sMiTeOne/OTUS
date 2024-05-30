@@ -6,13 +6,13 @@
     <div class="my-3 p-3 bg-white rounded box-shadow">
         <h5 class="border-bottom border-gray pb-2 mb-0">
             {% if not request.GET.sort %}
-                Recent questions
+                Свежие вопросы
             {% else %}
-                Trending questions
+                Популярные вопросы
             {% endif %}
         </h5>
 
         {% include 'includes/questions_table.html' %}
     </div>
-    {% include 'includes/pagination.html' with items=questions %}
+    {% include 'includes/pagination.html' %}
 {% endblock content %}

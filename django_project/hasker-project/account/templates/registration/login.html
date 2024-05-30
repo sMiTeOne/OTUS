@@ -2,7 +2,7 @@
 
 {% block content %}
 {% if not user.is_authenticated %}
-<h1 class="pb-5">Login</h1>
+<h3 class="pb-5">Авторизация</h3>
 {% for message in messages %}
 <p class="alert alert-danger">{{ message }}</p>
 {% endfor %}
@@ -11,14 +11,14 @@
     {% include 'includes/bs4_form.html' with form=form %}
     <div class="form-group row">
         <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">Enter</button>
+            <button type="submit" class="btn btn-primary">Войти</button>
         </div>
     </div>
     <input type="hidden" name="next" value="{{ next }}">
 </form>
 {% else %}
 <p class="alert alert-success">
-    Hello, <strong>{{ user.username }}</strong>! You're already logged in.
+    Вы уже авторизованы!
 </p>
 {% endif %}
 {% endblock %}

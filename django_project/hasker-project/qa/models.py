@@ -145,10 +145,9 @@ class Answer(BaseQAItem):
         self.question.save()
 
     @transaction.atomic
-    def bind_with_question_and_user(self, question_slug: str, user: User):
+    def set_question_and_user(self, slug: str, user: User):
+        self.question = get_object_or_404(Question, slug=slug)
         self.author = user
-        q = get_object_or_404(Question, slug=question_slug)
-        self.question = q
         self.save()
 
     def send_notification(self, request: HttpRequest):

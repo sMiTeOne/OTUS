@@ -1,10 +1,10 @@
 {% load url_update %}
 
 <nav aria-label="page navigation">
-    <ul class="pagination">
-        {% if items.has_previous %}
+    <ul class="pagination d-flex justify-content-center">
+        {% if page_obj.has_previous %}
         <li class="page-item">
-            <a class="page-link" href="?{% url_update page=items.previous_page_number %}">←</a>
+            <a class="page-link" href="?{% url_update page=page_obj.previous_page_number %}">←</a>
         </li>
         {% else %}
         <li class="page-item disabled">
@@ -14,14 +14,14 @@
 
         <li class="page-item active">
             <span class="page-link">
-                {{ items.number }} of {{ items.paginator.num_pages }}
+                {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
                 <span class="sr-only">⚬</span>
             </span>
         </li>
 
-        {% if items.has_next %}
+        {% if page_obj.has_next %}
         <li class="page-item">
-            <a class="page-link" href="?{% url_update page=items.next_page_number %}">→</a>
+            <a class="page-link" href="?{% url_update page=page_obj.next_page_number %}">→</a>
         </li>
         {% else %}
         <li class="page-item disabled">

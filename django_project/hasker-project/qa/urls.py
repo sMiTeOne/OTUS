@@ -7,7 +7,7 @@ from . import views
 
 urlpatterns = [
     path("create/", views.CreateQuestion.as_view(), name="create_question"),
-    path("question/<str:slug>/", views.ShowQuestion.as_view(), name="show_question"),
+    path("question/<str:slug>/", views.ShowAnswers.as_view(), name="show_question"),
     path("question/<str:slug>/vote/<str:value>", views.vote_question, name="vote_question"),
     path(
         "question/<str:slug>/answer/",

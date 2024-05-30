@@ -1,4 +1,5 @@
 from django.forms import (
+    Textarea,
     ModelForm,
     CharField,
 )
@@ -10,6 +11,8 @@ from .models import (
 
 
 class QuestionForm(ModelForm):
+    title = CharField(label="Заголовок")
+    content = CharField(label="Описание", widget=Textarea)
 
     class Meta:
         model = Question
@@ -17,7 +20,7 @@ class QuestionForm(ModelForm):
 
 
 class AnswerForm(ModelForm):
-    content = CharField(label="Answer")
+    content = CharField(label="Ответ", widget=Textarea)
 
     class Meta:
         model = Answer

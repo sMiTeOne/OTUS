@@ -10,7 +10,6 @@ from django.shortcuts import (
 from django.views.generic import (
     ListView,
     CreateView,
-    DetailView,
 )
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
@@ -23,28 +22,30 @@ from .models import (
 
 class ShowQuestions(ListView):
     model = Question
-    paginate_by = 10
-    context_object_name = 'questions'
+    paginate_by = 20
+    context_object_name = "questions"
     template_name = "qa/main.html"
 
     def get_ordering(self) -> str:
         ordering = self.request.GET.get("sort", "id")
         return f"-{ordering}"
-    
 
-class ShowQuestion(DetailView):
-    model = Question
+
+class ShowAnswers(ListView):
+    model = Answer
     template_name = "qa/show_question.html"
-    slug_url_kwarg = 'slug'
+    context_object_name = "answers"
+    ordering = ("-rating", "created_at")
+    paginate_by = 30
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['answers'] = self.get_question_answers()
-        context['form'] = AnswerForm()
+        context["question"] = self.get_question()
+        context["form"] = AnswerForm()
         return context
-    
-    def get_question_answers(self):
-        return Answer.answers.filter(question=self.get_object()).order_by("-rating", "created_at")
+
+    def get_question(self) -> Question | None:
+        return get_object_or_404(Question, slug=self.kwargs['slug'])
 
 
 class CreateQuestion(CreateView):
@@ -58,8 +59,8 @@ class CreateQuestion(CreateView):
 def create_answer(request, slug):
     form = AnswerForm(request.POST)
     if form.is_valid():
-        a = form.save(commit=False)
-        a.bind_with_question_and_user(slug, request.user)
+        a : Answer = form.save(commit=False)
+        a.set_question_and_user(slug, request.user)
         a.send_notification(request)
     return redirect("show_question", slug)
 

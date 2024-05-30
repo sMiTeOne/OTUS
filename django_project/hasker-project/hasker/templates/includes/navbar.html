@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="{% url 'index' %}">Hasker</a>
         <!-- burger -->
@@ -12,26 +12,26 @@
             <ul class="navbar-nav mr-auto"></ul>
             <form action="{% url 'search' %}" class="form-inline my-2 my-md-0">
                 <div class="input-group">
-                    <input name="q" value="{{ q }}" class="form-control" type="text" placeholder="Search"
+                    <input name="q" value="{{ q }}" class="form-control" type="text" placeholder="Поиск"
                         aria-label="Search">
                     <div class="input-group-apppend">
-                        <button class="btn btn-outline-light" type="submit">Search</button>
+                        <button class="btn btn-outline-light" type="submit">Поиск</button>
                     </div>
                 </div>
             </form>
             {% if not user.is_authenticated %}
-            <a href="{% url 'login' %}" class="btn btn-success ml-2">Log In</a>
-            <a href="{% url 'signup' %}" class="btn btn-primary ml-2">Sign Up</a>
+            <a href="{% url 'login' %}" class="btn btn-success ml-2">Войти</a>
+            <a href="{% url 'signup' %}" class="btn btn-light ml-2">Регистрация</a>
             {% else %}
-            <a class="btn btn-link" href="{% url 'account' %}">
+            <a class="btn btn-outline-light" style="margin: 6px" href="{% url 'account' %}">
                 <img class="ml-2 mr-2" {% if user.avatar %} src="{{ MEDIA_URL }}/{{ user.avatar }}" {% else %}
-                    src="{{ '/static/hasker/images/avatars/default.png' }}" {% endif %} width="32" height="32"
+                    src="{{ '/static/hasker/images/avatars/default.png' }}" {% endif %} width="22" height="22"
                     alt="avatar">
                 {{ user.username }}
             </a>
             <form class="form-inline my-2 my-md-0" action="{% url 'logout' %}" method="POST">
                 {% csrf_token %}
-                <button class="btn btn-primary ml-2" type="submit">Logout</button>
+                <button class="btn btn-danger ml-2" type="submit">Выйти</button>
             </form>
             {% endif %}
         </div>

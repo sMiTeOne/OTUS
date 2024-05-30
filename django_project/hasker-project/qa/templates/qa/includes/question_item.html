@@ -4,9 +4,7 @@
         {% if request.user != question.author %}
         {% include 'qa/includes/upvote_question_form.html' %}
         {% endif %}
-        <div class="text-center">
-            <p class="w-100 badge badge-primary">{{ question.rating }}</p>
-        </div>
+        <p class="w-100 badge badge-primary">{{ question.rating }}</p>
         {% if request.user != question.author %}
         {% include 'qa/includes/downvote_question_form.html' %}
         {% endif %}
@@ -30,7 +28,7 @@
 
                     <div class="col-5 offset-3">
                         <div class="text-muted small">
-                            Asked {{ question.created_at|timesince }} ago
+                            Создал {{ question.created_at }}
                         </div>
                         <div>
                             <img class="ml-2 mr-2" {% if question.author.avatar %}

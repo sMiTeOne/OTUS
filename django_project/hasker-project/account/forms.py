@@ -1,6 +1,7 @@
 from django.forms import (
     CharField,
     ModelForm,
+    ImageField,
 )
 from django.contrib.auth.forms import UserCreationForm
 
@@ -8,8 +9,7 @@ from .models import User
 
 
 class SignupForm(UserCreationForm):
-    username = CharField(label="Login")
-    email = CharField(label="Email")
+    avatar = ImageField(label="Фото профиля")
 
     class Meta:
         model = User
@@ -17,8 +17,8 @@ class SignupForm(UserCreationForm):
 
 
 class AccountSettingsForm(ModelForm):
-    username = CharField(label="Login", disabled=True)
-    email = CharField(label="Email")
+    username = CharField(label="Имя пользователя", disabled=True)
+    avatar = ImageField(label="Фото профиля")
 
     class Meta:
         model = User

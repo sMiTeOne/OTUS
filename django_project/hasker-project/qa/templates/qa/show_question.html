@@ -3,22 +3,21 @@
 {% block content %}
     {% include 'qa/includes/question_item.html' %}
 
-    <h3 class="pt-3">Answers</h3>
+    <h3 class="pt-3">Ответы</h3>
     <div class="pb-3">
         {% for answer in answers %}
             {% include 'qa/includes/answer_item.html' %}
         {% endfor %}
     </div>
-    {% include 'includes/pagination.html' with items=answers %}
+    {% include 'includes/pagination.html' %}
 
     {% if user.is_authenticated %}
-        <h4 class="pt-3 pb-3">Your answer</h4>
         <form action="{% url 'create_answer' question.slug %}" method="post">
             {% csrf_token %}
             {% include 'includes/bs4_form.html' with form=form %}
             <div class="form-group row">
                 <div class="col-sm-12">
-                    <button type="submit" class="btn btn-primary">Send answer</button>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
                 </div>
             </div>
         </form>
