@@ -109,14 +109,8 @@ jobs:
         working-directory: ${{ env.app_name }}
         run: docker-compose up -d
       - name: sleep
-        working-directory: ${{ env.app_name }}
-        run: sleep 5
-      - name: logs
-        working-directory: ${{ env.app_name }}
-        run: docker logs --tail 100 django_project-postgres-1
-      - name: unit tests
         working-directory: ${{ env.app_name }}/hasker/
         run: python -m manage test -v 2 
       - name: run django project
         working-directory: ${{ env.app_name }}/hasker/
-        run: python -m manage runserver &
+        run: python -m manage runserver
