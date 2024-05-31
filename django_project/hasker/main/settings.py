@@ -43,7 +43,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "main.urls"
 
-DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 TEMPLATES = [
     {
