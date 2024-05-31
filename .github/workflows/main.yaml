@@ -108,7 +108,9 @@ jobs:
       - name: run docker containers
         working-directory: ${{ env.app_name }}
         run: docker-compose up -d
-      - name: sleep
+      - name: wait postgres startup
+        run: sleep 5
+      - name: unit tests
         working-directory: ${{ env.app_name }}/hasker/
         run: python -m manage test -v 2 
       - name: run django project
