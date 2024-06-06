@@ -28,9 +28,6 @@ class TestHordeVoting(TestCase):
             question.update_rating(user, 1)
             answer.update_rating(user, -1)
 
-    def setUp(self):
-        pass
-
     def test_rating(self):
         question = Question.objects.first()
         answer = Answer.objects.first()
