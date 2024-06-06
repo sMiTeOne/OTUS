@@ -115,4 +115,4 @@ jobs:
         run: python -m manage test -v 2 
       - name: run django project
         working-directory: ${{ env.app_name }}/hasker/
-        run: python -m manage runserver
+        run: python -m manage runserver 0.0.0.0:8000

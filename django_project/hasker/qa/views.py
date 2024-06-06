@@ -68,22 +68,22 @@ def create_answer(request, slug):
 @login_required(login_url=reverse_lazy("login"))
 @require_POST
 def vote_answer(request, slug, pk, value):
-    a = get_object_or_404(Answer, pk=pk)
-    a.update_rating(request.user, int(value))
+    answer = get_object_or_404(Answer, pk=pk)
+    answer.update_rating(request.user, int(value))
     return redirect("show_question", slug)
 
 
 @login_required(login_url=reverse_lazy("login"))
 @require_POST
 def vote_question(request, slug, value):
-    q = get_object_or_404(Question, slug=slug)
-    q.update_rating(request.user, int(value))
+    question = get_object_or_404(Question, slug=slug)
+    question.update_rating(request.user, int(value))
     return redirect("show_question", slug)
 
 
 @login_required(login_url=reverse_lazy("login"))
 @require_POST
 def approve_answer(request, slug, pk):
-    a = get_object_or_404(Answer, pk=pk)
-    a.approve()
+    answer = get_object_or_404(Answer, pk=pk)
+    answer.approve()
     return redirect("show_question", slug)
