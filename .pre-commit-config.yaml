@@ -1,4 +1,4 @@
-exclude: '^.*\.(?!py$)[^.]+$$'
+exclude: '^.*\.(?!py$)[^.]+$|Dockerfile$'
 repos:
   - repo: local
     hooks:
