@@ -5,10 +5,10 @@ import numpy as np
 
 def eval_numerical_gradient(f, x):
     """
-  a naive implementation of numerical gradient of f at x 
-  - f should be a function that takes a single argument
-  - x is the point (numpy array) to evaluate the gradient at
-  """
+    a naive implementation of numerical gradient of f at x
+    - f should be a function that takes a single argument
+    - x is the point (numpy array) to evaluate the gradient at
+    """
 
     fx = f(x)  # evaluate function value at original point
     grad = np.zeros(x.shape)
@@ -32,9 +32,9 @@ def eval_numerical_gradient(f, x):
 
 def grad_check_sparse(f, x, analytic_grad, num_checks):
     """
-  sample a few random elements and only return numerical
-  in this dimensions.
-  """
+    sample a few random elements and only return numerical
+    in this dimensions.
+    """
     h = 1e-5
 
     for _ in range(num_checks):
@@ -48,6 +48,5 @@ def grad_check_sparse(f, x, analytic_grad, num_checks):
 
         grad_numerical = (fxph - fxmh) / (2 * h)
         grad_analytic = analytic_grad[ix]
-        rel_error = abs(grad_numerical - grad_analytic) / (
-        abs(grad_numerical) + abs(grad_analytic))
+        rel_error = abs(grad_numerical - grad_analytic) / (abs(grad_numerical) + abs(grad_analytic))
         print(f'numerical: {grad_numerical} analytic: {grad_analytic}, relative error: {rel_error}')
