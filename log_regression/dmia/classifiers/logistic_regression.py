@@ -7,8 +7,7 @@ class LogisticRegression:
         self.w = None
         self.loss_history = None
 
-    def train(self, X, y, learning_rate=1e-3, reg=1e-5, num_iters=100,
-              batch_size=200, verbose=False):
+    def train(self, X, y, learning_rate=1e-3, reg=1e-5, num_iters=100, batch_size=200, verbose=False):
         """
         Train this classifier using stochastic gradient descent.
 
@@ -47,7 +46,6 @@ class LogisticRegression:
             # replacement is faster than sampling without replacement.              #
             #########################################################################
 
-
             #########################################################################
             #                       END OF YOUR CODE                                #
             #########################################################################
@@ -60,7 +58,6 @@ class LogisticRegression:
             # TODO:                                                                 #
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
-
 
             #########################################################################
             #                       END OF YOUR CODE                                #
@@ -91,8 +88,6 @@ class LogisticRegression:
         # Implement this method. Store the probabilities of classes in y_proba.   #
         # Hint: It might be helpful to use np.vstack and np.sum                   #
         ###########################################################################
-
-
 
         ###########################################################################
         #                           END OF YOUR CODE                              #
@@ -138,15 +133,12 @@ class LogisticRegression:
         loss = 0
         # Compute loss and gradient. Your code should not contain python loops.
 
-
         # Right now the loss is a sum over all training examples, but we want it
         # to be an average instead so we divide by num_train.
         # Note that the same thing must be done with gradient.
 
-
         # Add regularization to the loss and gradient.
         # Note that you have to exclude bias term in regularization.
-
 
         return loss, dw
 

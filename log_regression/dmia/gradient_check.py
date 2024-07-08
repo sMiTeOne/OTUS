@@ -1,5 +1,6 @@
-import numpy as np
 from random import randrange
+
+import numpy as np
 
 
 def eval_numerical_gradient(f, x):
