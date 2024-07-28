@@ -138,4 +138,4 @@ jobs:
         run: python -m black . --check
       - name: run concurrency
         working-directory: ${{ env.app_name }}
-        run: PYTHONPATH=../ python ${{ env.app_name }}.py
+        run: PYTHONPATH=../ python app.py
