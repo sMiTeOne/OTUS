@@ -115,3 +115,25 @@ jobs:
       - name: unit tests
         working-directory: ${{ env.app_name }}/hasker/
         run: python -m manage test -v 2 
+  Concurrency-Tests:
+    runs-on: ubuntu-latest
+    env:
+      app_name: concurrency
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.10'
+          architecture: 'x64'
+      - name: isort check
+        working-directory: ${{ env.app_name }}
+        run: python -m isort . --check-only
+      - name: black check
+        working-directory: ${{ env.app_name }}
+        run: python -m black . --check
+      - name: run concurrency
+        working-directory: ${{ env.app_name }}
+        run: PYTHONPATH=../ python ${{ env.app_name }}.py
