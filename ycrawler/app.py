@@ -8,27 +8,33 @@ import aiohttp
 import aiofiles
 import settings
 from bs4 import BeautifulSoup
+from models import (
+    Comment,
+    News
+)
 
 DOWNLOAD_QUEUE = asyncio.Queue()
 COMMENTS_QUEUE = asyncio.Queue()
 
+URL = 'https://news.ycombinator.com'
 
 async def get(session: aiohttp.ClientSession, url: str) -> bytes | None:
     try:
-        async with session.get(url, timeout=settings.CONNECTION_TIMEOUT) as response:
-            if response.status != HTTPStatus.OK:
-                logging.warning('Failed to load page %s', url)
-            return await response.content.read()
+        response = await session.get(url, timeout=settings.CONNECTION_TIMEOUT)
+        if response.status != HTTPStatus.OK:
+            logging.warning('Failed to load page %s', url)
     except asyncio.TimeoutError:
         logging.error('Timeout error requesting %s', url)
     except aiohttp.client_exceptions.ClientConnectionError:
         logging.error('Unable to access the url %s', url)
+    else:
+        return await response.content.read()
 
 
-async def download_news(session: aiohttp.ClientSession, news: dict) -> None:
-    async with asyncio.Semaphore(settings.CONNECTION_MAX_COUNT):
-        if content := await get(session, news['url']):
-            await save_file(news['path'], content)
+async def download_news(session: aiohttp.ClientSession, news: News) -> None:
+    async with asyncio.Semaphore(settings.DOWNLOADING_CONCURRENCY):
+        if content := await get(session, news.url):
+            await save_file(news.file_path, content)
 
 
 async def save_file(file_path: str, data: bytes) -> None:
@@ -37,35 +43,27 @@ async def save_file(file_path: str, data: bytes) -> None:
         await file.write(data)
 
 
-def is_news_exist(news_id: str) -> bool:
-    news_path = os.path.join(settings.STORAGE_FOLDER, news_id)
-    return os.path.exists(news_path)
-
-
-def is_external_link(url: str) -> bool:
-    return 'http://' in url or 'https://' in url
-
-
 async def parse_main_page(response: str) -> None:
     soup = BeautifulSoup(response, "html.parser")
     news = soup.find_all('tr', class_='athing')
 
     for news in news:
-        if is_news_exist(news_id=news['id']):
-            logging.info('News %s already exist. Skipping...', news['id'])
+        news_id = news['id']
+        folder_path = f'{settings.STORAGE_FOLDER}/{news_id}'
+        if os.path.exists(folder_path):
+            logging.info('News %s already exist. Skipping...', news_id)
             continue
 
-        news_url = news.find('span', class_='titleline').a['href']
-
-        if news_url == f'item?id={news["id"]}':
-            logging.info('News %s is comment. Skipping...', news['id'])
+        news_url: str = news.find('span', class_='titleline').a['href']
+        if not news_url.startswith('http'):
+            logging.info('News %s is comment. Skipping...', news_id)
             continue
 
-        comments_url = f'{settings.CRAWLABLE_URL}/item?id={news["id"]}'
-        path = os.path.join(settings.STORAGE_FOLDER, news['id'], 'main.html')
+        comments_url = f'{URL}?id={news_id}'
+        file_path = f'{folder_path}/main.html'
 
-        await DOWNLOAD_QUEUE.put({'url': news_url, 'path': path})
-        await COMMENTS_QUEUE.put({'url': comments_url, 'news_id': news['id']})
+        await DOWNLOAD_QUEUE.put(News(url=news_url, file_path=file_path))
+        await COMMENTS_QUEUE.put(Comment(url=comments_url, news_id=news_id))
 
 
 async def parse_comment_page(response: str, news_id: str) -> None:
@@ -75,16 +73,16 @@ async def parse_comment_page(response: str, news_id: str) -> None:
     for comment in comments:
         urls = comment.find_all('a')
         for url in urls:
-            comment_url = url['href']
-            if is_external_link(comment_url):
+            comment_url: str = url['href']
+            if comment_url.startswith('http'):
                 file_name = f'{uuid.uuid4()}.html'
-                path = os.path.join(settings.STORAGE_FOLDER, news_id, file_name)
-                await DOWNLOAD_QUEUE.put({'url': comment_url, 'path': path})
+                file_path = f'{settings.STORAGE_FOLDER}/{news_id}/{file_name}'
+                await DOWNLOAD_QUEUE.put(News(url=comment_url, file_path=file_path))
 
 
 async def main_loop(session: aiohttp.ClientSession) -> None:
     while True:
-        response = await get(session=session, url=settings.CRAWLABLE_URL)
+        response = await get(session=session, url=URL)
         await parse_main_page(response=response)
         logging.info('Waiting %s seconds', settings.SCHEDULE_INTERVAL)
         await asyncio.sleep(settings.SCHEDULE_INTERVAL)
@@ -92,9 +90,9 @@ async def main_loop(session: aiohttp.ClientSession) -> None:
 
 async def comments_loop(session: aiohttp.ClientSession) -> None:
     while True:
-        comment = await COMMENTS_QUEUE.get()
-        response = await get(session=session, url=comment['url'])
-        await parse_comment_page(response=response, news_id=comment['news_id'])
+        comment: Comment = await COMMENTS_QUEUE.get()
+        response = await get(session=session, url=comment.url)
+        await parse_comment_page(response=response, news_id=comment.news_id)
 
 
 async def download_loop(session: aiohttp.ClientSession) -> None:
