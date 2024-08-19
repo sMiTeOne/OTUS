@@ -9,14 +9,15 @@ import aiofiles
 import settings
 from bs4 import BeautifulSoup
 from models import (
+    News,
     Comment,
-    News
 )
 
 DOWNLOAD_QUEUE = asyncio.Queue()
 COMMENTS_QUEUE = asyncio.Queue()
 
 URL = 'https://news.ycombinator.com'
+
 
 async def get(session: aiohttp.ClientSession, url: str) -> bytes | None:
     try:
