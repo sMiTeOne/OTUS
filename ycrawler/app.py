@@ -2,13 +2,12 @@ import os
 import uuid
 import asyncio
 import logging
-
 from http import HTTPStatus
-from bs4 import BeautifulSoup
-import settings
+
 import aiohttp
 import aiofiles
-
+import settings
+from bs4 import BeautifulSoup
 
 DOWNLOAD_QUEUE = asyncio.Queue()
 COMMENTS_QUEUE = asyncio.Queue()
@@ -115,7 +114,6 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
-
     logging.basicConfig(
         level=logging.INFO,
         datefmt='%Y.%m.%d %H:%M:%S',
