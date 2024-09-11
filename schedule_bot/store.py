@@ -1,10 +1,10 @@
 import tarantool
-from tarantool.response import Response
 from settings import (
-    STORAGE_DB_NAME,
     STORAGE_DB_HOST,
-    STORAGE_DB_PORT
+    STORAGE_DB_NAME,
+    STORAGE_DB_PORT,
 )
+from tarantool.response import Response
 
 
 class StationStorage:

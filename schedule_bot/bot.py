@@ -1,15 +1,17 @@
-from aiogram import Bot, Dispatcher, executor
+from core import get_station_schedule_result
+from store import StationStorage
+from aiogram import (
+    Bot,
+    Dispatcher,
+    executor,
+)
+from settings import TELEGRAM_API_TOKEN
 from aiogram.types import (
+    ParseMode,
     InlineQuery,
     InputTextMessageContent,
     InlineQueryResultArticle,
-    ParseMode,
 )
-
-from store import StationStorage
-from core import get_station_schedule_result
-from settings import TELEGRAM_API_TOKEN
-
 
 bot = Bot(token=TELEGRAM_API_TOKEN)
 dp = Dispatcher(bot)
@@ -28,7 +30,7 @@ async def inline_echo(inline_query: InlineQuery) -> None:
             input_message_content=InputTextMessageContent(
                 message_text=message_text,
                 parse_mode=ParseMode.HTML,
-            )
+            ),
         )
         results.append(result)
     await bot.answer_inline_query(inline_query.id, results=results, cache_time=1)

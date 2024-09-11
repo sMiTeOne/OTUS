@@ -1,9 +1,9 @@
 import aiohttp
-from models import (
-    StationScheduleRequest,
-    YandexRaspBaseRequest,
-)
 from enums import ContentTypes
+from models import (
+    YandexRaspBaseRequest,
+    StationScheduleRequest,
+)
 from settings import YANDEX_API_ADDESS
 
 

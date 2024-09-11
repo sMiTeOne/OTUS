@@ -2,13 +2,12 @@ from datetime import datetime
 from collections import defaultdict
 
 from api import get_station_schedule
+from enums import ErrorTypes
 from models import (
     StationScheduleRequest,
     StationScheduleResponse,
 )
-from enums import ErrorTypes
 from async_lru import alru_cache
-
 
 YANDEX_RASP_URL = 'https://rasp.yandex.ru/thread/'
 
