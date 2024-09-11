@@ -34,6 +34,6 @@ def get_score(store: Store, phone=None, email=None, birthday=None, gender=None, 
 
 
 def get_interests(store: Store, client_id: int) -> list[str]:
-    if cached_data := store.get(f"cid:{client_id}"):
+    if cached_data := store.cache_get(f"cid:{client_id}"):
         return cached_data[0][1]
     return []

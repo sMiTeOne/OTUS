@@ -12,9 +12,6 @@ class Store:
     def initialize(self):
         self.connection = tarantool.connect(host=self.host, port=self.port).space(self.space)
 
-    def get(self, primary_key: str) -> TarantoolResponse | None:
-        return self.connection.select(primary_key)
-
     def cache_get(self, primary_key: str) -> TarantoolResponse | None:
         try:
             return self.connection.select(primary_key)

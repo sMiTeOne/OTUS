@@ -1,0 +1,5 @@
+aiogram==2.23.1
+aiohttp==3.10.5
+async_lru==2.0.4
+pydantic==2.9.1
+tarantool==1.2.0
